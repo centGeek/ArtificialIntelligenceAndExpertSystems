@@ -4,21 +4,23 @@ import random
 moves_history = []
 def manhattan_distance(board):
     """
-    Obliczanie odległości Manhattan dla planszy na podstawie położenia pól.
+    Obliczanie odległości Manhattan dla planszy piętnastki na podstawie położenia pól.
     """
     size = len(board)
     distance = 0
-    final_board = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0]
+    final_board = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0]  # docelowa plansza to po prostu kolejne liczby od 0 do size-1
     
     for i in range(size):
-        if board[i] != final_board[i]:   
-            current_row, current_col = i // 4, 4- i % 4
-            value = board[i]
-            destinated = ""
-            for i in final_board:
-                if(i == value):
-                    target_row, target_col = i // 4, i % 4   
-            distance += abs(current_row - target_row) + abs(current_col - target_col)
+        if board[i] != final_board[i]:
+                current_row, current_col = i // 4, i % 4
+                value = board[i]
+                target_index = final_board.index(value)  # znajdujemy pozycję docelową wartości na docelowej planszy
+                target_row, target_col = target_index // 4, target_index % 4
+                distance += abs(current_row - target_row) + abs(current_col - target_col)
+                
+    return distance
+
+
     
     return distance
 def bfs_recursive(initial_board, final_board, visited=None, the_list=None, count=0, start_time=None, period_of_time=1800):

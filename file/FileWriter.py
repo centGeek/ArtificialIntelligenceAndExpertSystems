@@ -8,15 +8,18 @@ class FileWriter():
             sol = bfs(puzzle, direction)
 
             with open(outputFile, 'w') as f:
-                print(sol[0], file=f)
-                print(sol[1], file=f)
-
+                if(sol[1] != -1):
+                    print(sol[0], file=f)
+                    print(sol[1], file=f)
+                else:
+                    print(-1, file=f)
+                
             with open(stats, 'w') as f:
                 print(sol[0], file=f)
                 print(sol[2], file=f)
                 print(sol[3], file=f)
                 print(sol[4], file=f)   
-                # print(sol[5], file=f)  
+                print(sol[5], file=f)  
 
         elif (strategy == "dfs"):
             sol = dfs(puzzle, direction)
@@ -30,7 +33,7 @@ class FileWriter():
                 print(sol[2], file=f)
                 print(sol[3], file=f)
                 print(sol[4], file=f)   
-                # print(sol[5], file=f)  
+                print(sol[5], file=f)  
 
         elif (strategy == "astr"):
             sol = aStarPuzzle(puzzle,direction)

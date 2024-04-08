@@ -1,8 +1,6 @@
-from BoardState import BoardState
-from Algorithms.AStar import aStarPuzzle
-from Algorithms.Bfs import bfs
-from Algorithms.Dfs import dfs
 import sys
+sys.path.append('..')
+from BoardState import BoardState
 from file.FileWriter import FileWriter
 
 if len(sys.argv) > 4: 

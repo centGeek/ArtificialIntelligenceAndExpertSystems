@@ -18,7 +18,7 @@ class BoardState:
         self.columns = int(columns)
         self.array = puzzle
 
-    def move(self, string) -> bool:
+    def move(self, string: str) -> bool:
         if string == "D":
             dir = self.DOWN
         elif string == "U":

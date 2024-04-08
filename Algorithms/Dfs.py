@@ -15,7 +15,7 @@ def dfs(puzzle, the_way):
     }
 
     while stack: # warunek zawsze spelniony, stos nigdy nie jest pusty
-        iteration += 1
+        iteration += 1 #liczba
         current = stack.pop()
         if current.deep == MaxDepth:
             continue

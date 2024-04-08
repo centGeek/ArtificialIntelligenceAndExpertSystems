@@ -23,7 +23,7 @@
 
 param([string]$strategy, [string]$param)
 
-$Progcmd = 'python C:\Users\Husaiin\Desktop\Studia\SEM4\SkyNet_SISE\15_Puzzle_Solver\main.py'
+$Progcmd = ' python C:\Users\Cente\Desktop\studia\15_Puzzle_Solver\ArtificialIntelligenceAndExpertSystems\Ukladanki\przeszukiwanie.ps1'
 $Orders = @('RDUL', 'RDLU', 'DRUL', 'DRLU', 'LUDR',  'LURD', 'ULDR', 'ULRD')
 $Heuristics = @('hamn', 'manh')
 $InitFilenameRegex = '^[a-zA-Z0-9]+_[0-9]+_[0-9]+.txt$'

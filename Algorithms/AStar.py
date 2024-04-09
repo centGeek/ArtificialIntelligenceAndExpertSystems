@@ -71,7 +71,7 @@ def aStarPuzzle(puzzle,heuristic):
 
         if current.krotek.check():
             end = time.time()
-            return len(current.path), current.path, len(visited), iteration, current.krotek.deep-1, round((end-start),3)
+            return len(current.path), current.path, len(visited), iteration, current.krotek.deep-1, round((end - start) * 1000, 3)
         
         for i in range (0,4):
             temp = copy.deepcopy(current)

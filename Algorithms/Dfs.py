@@ -22,7 +22,7 @@ def dfs(puzzle, the_way):
 
         if current.check():
             end = time.time()
-            return len(current.path), current.path, len(visited), iteration, current.deep, round((end - start), 3)
+            return len(current.path), current.path, len(visited), iteration, current.deep, round((end - start) * 1000)
 
         for i in range(4):
             move_way(current, the_way[i], visited, stack)

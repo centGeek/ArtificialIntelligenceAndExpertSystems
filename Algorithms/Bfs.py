@@ -16,6 +16,7 @@ def bfs(puzzle, the_way):
         temp.move(direction)
         if temp.hashState() not in visited:
             visited.add(temp.hashState())
+            temp.lastmove = direction
             temp.path += direction
             temp.deep += 1
             queue.append(temp)

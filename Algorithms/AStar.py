@@ -1,6 +1,7 @@
 import collections
 import copy
 import time
+from queue import PriorityQueue
 direction = ["D","U","R",'L']
 
 def aStarPuzzle(puzzle,heuristic):
@@ -15,8 +16,8 @@ def aStarPuzzle(puzzle,heuristic):
 
         def __lt__(self, other) -> bool:
             return self.score < other.score
-
-    queue = []
+ 
+    queue = PriorityQueue()
     visited = set()
     start = AStarPuzzle(puzzle)
 
@@ -58,14 +59,14 @@ def aStarPuzzle(puzzle,heuristic):
     if start.krotek.check():
         return start.krotek
 
-    queue.append(start)
+    queue.put((1, start))
     start = time.time()
     iteration = 1
 
 
     while queue:
         iteration += 1
-        current  = queue.pop()
+        current  = queue.get()[1]
         visited.add(current.krotek.hashState())
 
         if current.krotek.check():
@@ -83,6 +84,4 @@ def aStarPuzzle(puzzle,heuristic):
                     temp.score = ManhattanDistance(temp) + temp.krotek.deep
                 elif (heuristic == "hamm"):
                     temp.score = HammingDistance(temp) + temp.krotek.deep
-                queue.append(temp)
-
-        queue.sort(reverse=True)
+                queue.put((temp.score, temp))

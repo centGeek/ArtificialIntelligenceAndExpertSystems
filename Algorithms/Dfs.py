@@ -32,6 +32,7 @@ def MoveAndCheck(array, direction, visited, stack):
         temp.move(direction)
         if temp.hashState() in visited and visited[temp.hashState()] > temp.deep or temp.hashState() not in visited:
             visited[temp.hashState()] = array.deep
+            temp.lastmove = direction
             temp.path += direction
             temp.deep += 1
             stack.append(temp)

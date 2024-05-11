@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-from BoardState import BoardState
+from zadanie1.BoardState import BoardState
 from file.FileWriter import FileWriter
 
 if len(sys.argv) > 4: 

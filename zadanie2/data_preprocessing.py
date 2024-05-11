@@ -12,6 +12,5 @@ train_data['target'] = y_train
 test_data = pd.DataFrame(X_test, columns=iris.feature_names)
 test_data['target'] = y_test
 
-# Zapisanie danych do dwóch różnych plików CSV
 train_data.to_csv("train_data.csv", index=False)
 test_data.to_csv("test_data.csv", index=False)

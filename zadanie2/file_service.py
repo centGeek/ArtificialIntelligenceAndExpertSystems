@@ -1,7 +1,8 @@
 import pickle
-def save(self, filename):
+from NeuronNetwork import NeuronNetwork
+def save(neuron : NeuronNetwork, filename):
         with open(filename, "wb") as f:
-            pickle.dump(self, f)
+            pickle.dump(neuron, f)
 def load(filename):
         with open(filename, "rb") as f:
             return pickle.load(f)

@@ -1,4 +1,4 @@
-import random
-from NeuronNetwork import NeuronNetwork
-# def train(self, network: NeuronNetwork):
+# import random
+# from NeuronNetwork import NeuronNetwork
+#     def train(self, network: NeuronNetwork):
         

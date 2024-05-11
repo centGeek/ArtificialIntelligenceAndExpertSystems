@@ -1,5 +1,7 @@
 import random
 import numpy as np
+import logging
+logging.basicConfig(filename='training_logs.log', level=logging.INFO)
 from functions import sigmoid, sigmoid_derivative
 class NeuronNetwork():
     def __init__(self, neuron_in_particular_layers: list, useBias: bool) -> None:
@@ -23,8 +25,12 @@ class NeuronNetwork():
         for w in self.weights:
             velocity_matrix = np.zeros(w.shape)
             self.velocity.append(velocity_matrix)
+        # zobacz jak wygladaja poszczegolne poczatkowe parametry sieci
+        logging.info(f"Initialized velocity {self.velocity}")
+        logging.info(f"Initialized biases {self.biases}")
+        logging.info(f"Initialized weights {self.weights}")
+# def stochastic_gradient_descent():
      
-
 def calculateError(self, target, output):
     error = 0
     for i in range(len(target)):

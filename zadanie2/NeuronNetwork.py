@@ -14,10 +14,9 @@ class Network:
         self.layer_list = []
         self.bias = bias
         inputs_layer = self.input_num
-        for i in range(len(neurons_in_particular_layers)-2):
-            neuron_num = int(input(f"podaj ilość neuronów w {i + 1} warstwie ukrytej: "))
-            self.layer_list.append(Layer(inputs_layer, neuron_num, bias))
-            inputs_layer = neuron_num
+        neuron_num_in_hidden_layer = neurons_in_particular_layers[1]
+        self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
+        inputs_layer = neuron_num_in_hidden_layer
         self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
@@ -98,7 +97,7 @@ class Network:
                     np.random.shuffle(input_data)
                 sum_errors = 0
                 for sample in input_data:
-                    target = sample[self.input_num:] 
+                    target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc 
                     self.forward(sample[:self.input_num])  
 
                     error = self.activations[-1] - target
@@ -119,15 +118,21 @@ class Network:
                     x_values = np.arange(0, i, 1)
                     plt.plot(x_values, mistakes)
                     plt.show()
+                    plt.title("Zależność błędu od ilości epok")
+                    plt.xlabel("Liczba epok")
+                    plt.ylabel("Wartość błędu")
                     file.close()
                     break
             x_values = np.arange(0, epochs, 1)
             plt.plot(x_values, mistakes)
+            plt.title("Zależność błędu od ilości epok")
+            plt.xlabel("Liczba epok")
+            plt.ylabel("Wartość błędu")
             plt.show()
 
 
     def test(self, test_data):
-        nr_of_outputs = test_data.shape[1] - self.input_num
+        nr_of_outputs = self.neurons_in_particular_layers[-1]
         correctly_guessed = 0
         incorrectly_guessed = 0
         confusion_matrix = np.zeros((nr_of_outputs, nr_of_outputs))
@@ -142,19 +147,6 @@ class Network:
                 target_class = np.argmax(target)
                 confusion_matrix[target_class, predicted_class] += 1
 
-                file.write(f"wzorzec numer: {i}, {sample_input}\n")
-                file.write(f"popełniony błąd: {mean_squared_error(target, output)}\n")
-                file.write(f"pożądany wzorzec odpowiedzi: {target}\n")
-                for x in range(len(output)):
-                    file.write(f"błąd popełniony na {x} wyjściu: {output[x] - target[x]}\n")
-                for x in range(len(output)):
-                    file.write(f"wartość na {x} wyjściu: {output[x]}\n")
-                file.write(f"wartości wag neuronów wyjściowych\n {self.weights[-1]}\n")
-                for x in reversed(range(1, len(self.activations) - 1)):
-                    file.write(f"wartości wyjściowych neuronów ukrytych, warstwa {x}:\n {self.activations[x]}\n")
-                for x in reversed(range(len(self.weights) - 1)):
-                    file.write(f"wartości wag neuronów ukrytych, warstwa {x + 1}:\n {self.weights[x]}\n\n\n")
-        file.close()
 
         confusion_string = ""
         for i in range(nr_of_outputs):

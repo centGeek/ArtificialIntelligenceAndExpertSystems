@@ -23,19 +23,3 @@ def return_X_train():
 def return_Y_train():
     df = pd.read_csv('train_data.csv')
     return df.iloc[:, -1]
-def load_iris_train():
-    return pd.read_csv('train_data.csv')
-def load_train_and_test():
-    train_data = pd.read_csv('./zadanie2/train_data.csv', header=None)
-    test_data = pd.read_csv('./zadanie2/test_data.csv', header=None)
-
-    lb = LabelBinarizer()
-    y_train = lb.fit_transform(train_data.iloc[:, -1])
-    y_test = lb.transform(test_data.iloc[:, -1])
-
-    X_train = train_data.iloc[:, :-1].values
-    X_test = test_data.iloc[:, :-1].values
-
-    training_data = [(x.reshape(-1, 1), y.reshape(-1, 1)) for x, y in zip(X_train, y_train)]
-    test_data = [(x.reshape(-1, 1), y.reshape(-1, 1)) for x, y in zip(X_test, y_test)]
-    return training_data, test_data

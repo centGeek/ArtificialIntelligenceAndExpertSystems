@@ -1,108 +1,27 @@
 INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
+TP: 30.0 TN: 0.0 FP: 0.0 FN: 0.0
+Precision: 1.0 Recall: 1.0 F-measure: 1.0 
 
 
 INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
+TP: 30.0 TN: 0.0 FP: 0.0 FN: 0.0
+Precision: 1.0 Recall: 1.0 F-measure: 1.0 
 
 class: 1
-TP: 0.0 TN: 10.0 FP: 20.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-class: 1
-TP: 0.0 TN: 10.0 FP: 20.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-class: 2
-TP: 0.0 TN: 20.0 FP: 10.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-class: 1
-TP: 0.0 TN: 0.0 FP: 30.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-class: 1
-TP: 0.0 TN: 0.0 FP: 30.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-class: 2
 TP: 0.0 TN: 30.0 FP: 0.0 FN: 0.0
 Precision: nan Recall: nan F-measure: nan 
 
 
 INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
+TP: 30.0 TN: 0.0 FP: 0.0 FN: 0.0
+Precision: 1.0 Recall: 1.0 F-measure: 1.0 
 
 class: 1
-TP: 0.0 TN: 0.0 FP: 30.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 0.0 TN: 0.0 FP: 0.0 FN: 30.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-class: 1
-TP: 0.0 TN: 0.0 FP: 30.0 FN: 0.0
-Precision: 0.0 Recall: nan F-measure: nan 
+TP: 0.0 TN: 30.0 FP: 0.0 FN: 0.0
+Precision: nan Recall: nan F-measure: nan 
 
 class: 2
 TP: 0.0 TN: 30.0 FP: 0.0 FN: 0.0
 Precision: nan Recall: nan F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 10.0 TN: 0.0 FP: 20.0 FN: 0.0
-Precision: 0.3333333333333333 Recall: 1.0 F-measure: 0.5 
-
-
-INFO:root:class: 0
-TP: 10.0 TN: 0.0 FP: 20.0 FN: 0.0
-Precision: 0.3333333333333333 Recall: 1.0 F-measure: 0.5 
-
-class: 1
-TP: 0.0 TN: 20.0 FP: 0.0 FN: 10.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-
-INFO:root:class: 0
-TP: 10.0 TN: 0.0 FP: 20.0 FN: 0.0
-Precision: 0.3333333333333333 Recall: 1.0 F-measure: 0.5 
-
-class: 1
-TP: 0.0 TN: 20.0 FP: 0.0 FN: 10.0
-Precision: nan Recall: 0.0 F-measure: nan 
-
-class: 2
-TP: 0.0 TN: 20.0 FP: 0.0 FN: 10.0
-Precision: nan Recall: 0.0 F-measure: nan 
 
 

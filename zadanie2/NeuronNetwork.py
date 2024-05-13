@@ -2,8 +2,7 @@ import numpy as np
 from functions import sigmoid_derivative, mean_squared_error
 from layer import Layer
 import matplotlib.pyplot as plt
-from paths import PATH_TEST_LOGGING
-from paths import PATH_STATS
+from paths import PATH_TEST_LOGGING, PATH_STATS, PATH_TRAIN_EFFECTS
 import logging
 logging.basicConfig(filename=PATH_STATS, level=logging.INFO)
 class Network:
@@ -95,11 +94,12 @@ class Network:
         for x in range(len(self.layer_list)):
             self.layer_list[x].update_biases(self.biases[x])
 
-    def train(self, input_data, epochs, learning_rate, jump, given_error, momentum):
+    def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum):
         mistakes = []
         with open(PATH_TEST_LOGGING, "w") as file:
             for i in range(epochs):
-                np.random.shuffle(input_data)
+                if shuffle:
+                    np.random.shuffle(input_data)
                 sum_errors = 0
                 for sample in input_data:
 
@@ -183,7 +183,7 @@ class Network:
             logging.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
-        with open("training_effectiveness_info.txt", "w") as file:
+        with open(PATH_TRAIN_EFFECTS, "w") as file:
             file.write(confusion_string)
             file.write(f"\n correctly classified: {correctly_guessed}\n")
             file.write(f"\n incorrectly classified: {incorrectly_guessed}\n")

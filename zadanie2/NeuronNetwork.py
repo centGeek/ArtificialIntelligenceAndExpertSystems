@@ -14,10 +14,17 @@ class Network:
         self.layer_list = []
         self.bias = bias
         inputs_layer = self.input_num
-        neuron_num_in_hidden_layer = neurons_in_particular_layers[1]
-        self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
-        inputs_layer = neuron_num_in_hidden_layer
+
+        for i in range(1, self.num_layers - 1):
+            neuron_num_in_hidden_layer = neurons_in_particular_layers[i]
+            self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
+            inputs_layer = neuron_num_in_hidden_layer
         self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
+
+        #neuron_num_in_hidden_layer = neurons_in_particular_layers[1]
+        #self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
+        #inputs_layer = neuron_num_in_hidden_layer
+        #self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
         derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
@@ -97,7 +104,12 @@ class Network:
                     np.random.shuffle(input_data)
                 sum_errors = 0
                 for sample in input_data:
-                    target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc 
+
+                    target = np.zeros_like(self.activations[-1])
+                    g = int(sample[self.input_num])
+                    target[g] = 1 # target jest tablica, przyjmuje 1 wartosc
+
+                    #target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
                     self.forward(sample[:self.input_num])  
 
                     error = self.activations[-1] - target
@@ -112,17 +124,17 @@ class Network:
                 if i % jump == 0:
                     file.write(f"{sum_errors / len(input_data)}\n")
                     mistakes.append(sum_errors / len(input_data))
-                if sum_errors / len(input_data) <= given_error:
-                    file.write(f"Uzyskano zadany poziom błędu w epoce {i}\n")
-                    file.write(f"błąd wynosi: {sum_errors / len(input_data)}\n")
-                    x_values = np.arange(0, i, 1)
-                    plt.plot(x_values, mistakes)
-                    plt.show()
-                    plt.title("Zależność błędu od ilości epok")
-                    plt.xlabel("Liczba epok")
-                    plt.ylabel("Wartość błędu")
-                    file.close()
-                    break
+                # if sum_errors / len(input_data) <= given_error:
+                #     file.write(f"Uzyskano zadany poziom błędu w epoce {i}\n")
+                #     file.write(f"błąd wynosi: {sum_errors / len(input_data)}\n")
+                #     x_values = np.arange(0, i, 1)
+                #     plt.plot(x_values, mistakes)
+                #     plt.show()
+                #     plt.title("Zależność błędu od ilości epok")
+                #     plt.xlabel("Liczba epok")
+                #     plt.ylabel("Wartość błędu")
+                #     file.close()
+                #     break
             x_values = np.arange(0, epochs, 1)
             plt.plot(x_values, mistakes)
             plt.title("Zależność błędu od ilości epok")

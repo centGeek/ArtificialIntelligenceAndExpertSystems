@@ -27,11 +27,10 @@ class Network:
         #self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
-        derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
-                            enumerate(self.layer_list[:-1])])
+        derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in enumerate(self.layer_list[:-1])])
         self.derivatives = derivatives
 
-        activations = [np.zeros(self.input_num)]
+        activations = [np.zeros(self.input_num)] #liczba aktywacji taka sama
         activations.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
         self.activations = activations
 
@@ -96,12 +95,11 @@ class Network:
         for x in range(len(self.layer_list)):
             self.layer_list[x].update_biases(self.biases[x])
 
-    def train(self, input_data, epochs, learning_rate, jump, given_error, shuffle, momentum):
+    def train(self, input_data, epochs, learning_rate, jump, given_error, momentum):
         mistakes = []
         with open(PATH_TEST_LOGGING, "w") as file:
             for i in range(epochs):
-                if shuffle:
-                    np.random.shuffle(input_data)
+                np.random.shuffle(input_data)
                 sum_errors = 0
                 for sample in input_data:
 

@@ -5,7 +5,6 @@ from NeuronNetwork import Network
 from file_service import save, load
 from paths import PATH_TEST_DATA, PATH_TRAIN_DATA, PATH_SAVED
 
-
 def choose_menu():
     while True:
         function_type = input("""
@@ -19,17 +18,22 @@ def choose_menu():
         [7] -> zakoncz program: """)
         return function_type
 
-
 neuron_network = None
-network_structure = [4, 10, 10, 3]
+network_structure = [4, 5, 10, 3]
 while True:
     output_menu = int(choose_menu())
     if output_menu == 1:
-        network_structure = []
-        layers_amount = input("Wybierz liczbe warstw")
-        for i in range(0, layers_amount):
-            network_structure.append(int(input(f"Podaj liczbe neuronow na {i + 1} warstwie")))
+        network_structure = [4, 5, 10, 3]
     elif output_menu == 2:
+        network_structure = []
+        input_neuron = int(input("Podaj liczbe neuronych wejsciowych: "))
+        amount_of_layers = int(input("Podaj liczbe warstw ukrytych"))
+        for i in range(amount_of_layers):
+            layer = int(input(f"Podaj liczbe neuronow w {i+1} warstwie"))
+            network_structure.append(layer)
+        hidden_layer = int(input("Podaj liczbe neuronow w warstwie ukrytej: "))
+        output_layer = int(input("Podaj liczbe neuronow w warstwie wyjsciowej: "))
+        network_structure = [input_neuron, hidden_layer, output_layer]
         neuron_network = Network(network_structure, False)
     elif output_menu == 3:
         filename = input("podaj nazwe pliku,do którego chcesz zapisać sieć, bez rozszerenia: ") + ".pkl"
@@ -37,10 +41,7 @@ while True:
     elif output_menu == 4:
         load(PATH_SAVED)
     elif output_menu == 5:
-        which_data_set = int(input("""
-[1] - irysy
-[2] - autoasocjacja
-[3] - własny zbiór: """))
+        which_data_set = int(input("[1] - irysy\n[2] - autoasocjacja\n[3] - własny zbiór: """))
         data_for_training = None
         if which_data_set == 1:
             data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
@@ -50,10 +51,8 @@ while True:
         else:
             data_for_training = np.loadtxt(input("podaj nazwę pliku z rozszerzeniem txt: "))
         shuffle = False
-        network_structure = [4, 10, 10, 3]
         neuron_network = Network(network_structure, False)
-        neuron_network.train(data_for_training, epochs=50, learning_rate=1, jump=1, given_error=0.1, shuffle=False,
-                             momentum=0)
+        neuron_network.train(data_for_training, epochs=10, learning_rate=1, jump=1, given_error=0.1, momentum=0)
         print("statystyki zapisano do pliku!")
 
     elif output_menu == 6:
@@ -65,7 +64,7 @@ while True:
             data_for_testing = np.genfromtxt(PATH_TEST_DATA, delimiter=',')
         elif which_data_set == 2:
             data_for_testing = np.genfromtxt('Data/autoasocjacja.csv', delimiter=',')
-        network_structure = [4, 20, 20, 3]
+        network_structure = [4, 5, 10, 3]
         neuron_network = Network(network_structure, False)
         neuron_network.test(data_for_testing)
     elif output_menu == 7:

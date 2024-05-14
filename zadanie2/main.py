@@ -1,9 +1,8 @@
 import numpy as np
-import pickle
 import sys
 from NeuronNetwork import Network
 from file_service import save, load
-from paths import PATH_TEST_DATA, PATH_TRAIN_DATA, PATH_SAVED
+from paths import PATH_TEST_DATA, PATH_TRAIN_DATA, PATH_SAVED, PATH_ASOCJACJA
 
 # GLOBAL
 neuron_network = None
@@ -37,8 +36,7 @@ while True:
         network_structure.append(output_layer)
         neuron_network = Network(network_structure, False)
     if output_menu == 2:
-        filename = input("podaj nazwe pliku,do którego chcesz zapisać sieć, bez rozszerenia: ") + ".pkl"
-        save(neuron_network, "./zadanie2/data/" + filename)
+        save(neuron_network, PATH_SAVED)
     if output_menu == 3:
         neuron_network = load(PATH_SAVED)
     if output_menu == 4:
@@ -54,18 +52,17 @@ while True:
         neuron_network = Network(network_structure, True)
         neuron_network.train(data_for_training, epochs=20, shuffle=False, learning_rate=1, jump=1, given_error=0.1,
                              momentum=0)
-        print("statystyki zapisano do pliku!")
 
     if output_menu == 5:
         which_data_set = int(input("""
             [1] - zbiór irysów
-            [2] - własny zbiór: """))
+            [2] - autoasocjacja: """))
         data_for_testing = None
         if which_data_set == 1:
             data_for_testing = np.genfromtxt(PATH_TEST_DATA, delimiter=',')
+            neuron_network.test(data_for_testing)
         elif which_data_set == 2:
-            data_for_testing = np.genfromtxt('Data/autoasocjacja.csv', delimiter=',')
-        #neuron_network = Network(network_structure, False)
-        neuron_network.test(data_for_testing)
+            data_for_testing = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
+            neuron_network.test(data_for_testing)
     if output_menu == 6:
         sys.exit()

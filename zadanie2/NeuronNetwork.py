@@ -146,6 +146,7 @@ class Network:
         correctly_guessed = 0
         incorrectly_guessed = 0
         confusion_matrix = np.zeros((nr_of_outputs, nr_of_outputs))
+        good = 0
         with open(PATH_TEST_LOGGING, "w") as file:
             for i, sample in enumerate(test_data):
                 target = sample[self.input_num:]
@@ -154,10 +155,11 @@ class Network:
                 output = self.activations[-1]
 
                 predicted_class = np.argmax(output)                
-                target_class = np.argmax(target)
+                target_class = int(target[0])
                 confusion_matrix[target_class, predicted_class] += 1
-
-
+                if(target_class == predicted_class):
+                    good+=1
+        print(good)
         confusion_string = ""
         for i in range(nr_of_outputs):
             confusion_string += f"class: {i}\n"

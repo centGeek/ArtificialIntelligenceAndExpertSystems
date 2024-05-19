@@ -20,11 +20,6 @@ class Network:
             inputs_layer = neuron_num_in_hidden_layer
         self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
 
-        #neuron_num_in_hidden_layer = neurons_in_particular_layers[1]
-        #self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
-        #inputs_layer = neuron_num_in_hidden_layer
-        #self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
-
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
         derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in enumerate(self.layer_list[:-1])])
         self.derivatives = derivatives
@@ -94,51 +89,54 @@ class Network:
         for x in range(len(self.layer_list)):
             self.layer_list[x].update_biases(self.biases[x])
 
-    def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum):
+    def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum, autoasocjacja):
         mistakes = []
-        with open(PATH_TEST_LOGGING, "w") as file:
-            for i in range(epochs):
-                if shuffle:
-                    np.random.shuffle(input_data)
-                sum_errors = 0
-                for sample in input_data:
+        x_values = []
+        # with open(PATH_TEST_LOGGING, "w") as file:
+        for i in range(epochs):
+            if shuffle:
+                np.random.shuffle(input_data)
+            sum_errors = 0
+            for sample in input_data:
 
-                    target = np.zeros_like(self.activations[-1])
-                    g = int(sample[self.input_num])
-                    target[g] = 1 # target jest tablica, przyjmuje 1 wartosc
+                target = np.zeros_like(self.activations[-1])
+                g = int(sample[self.input_num])
+                target[g] = 1 # target jest tablica, przyjmuje 1 wartosc
 
-                    #target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
-                    self.forward(sample[:self.input_num])  
+                #target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
+                self.forward(sample[:self.input_num])  
 
-                    error = self.activations[-1] - target
-                    self.back_propagation(error)
+                error = self.activations[-1] - target
+                self.back_propagation(error)
 
-                    self.update_weights(learning_rate, momentum)
+                self.update_weights(learning_rate, momentum)
 
-                    if self.bias:
-                        self.update_biases(learning_rate)
+                if self.bias:
+                    self.update_biases(learning_rate)
 
-                    sum_errors += mean_squared_error(target, self.activations[-1])
-                if i % jump == 0:
-                    file.write(f"{sum_errors / len(input_data)}\n")
-                    mistakes.append(sum_errors / len(input_data))
-                # if sum_errors / len(input_data) <= given_error:
-                #     file.write(f"Uzyskano zadany poziom błędu w epoce {i}\n")
-                #     file.write(f"błąd wynosi: {sum_errors / len(input_data)}\n")
-                #     x_values = np.arange(0, i, 1)
-                #     plt.plot(x_values, mistakes)
-                #     plt.show()
-                #     plt.title("Zależność błędu od ilości epok")
-                #     plt.xlabel("Liczba epok")
-                #     plt.ylabel("Wartość błędu")
-                #     file.close()
-                #     break
-            x_values = np.arange(0, epochs, 1)
-            plt.plot(x_values, mistakes)
-            plt.title("Zależność błędu od ilości epok")
-            plt.xlabel("Liczba epok")
-            plt.ylabel("Wartość błędu")
-            plt.show()
+                sum_errors += mean_squared_error(target, self.activations[-1])
+            if i % jump == 0:
+                logging.info(f"{sum_errors / len(input_data)}")
+                mistakes.append(sum_errors / len(input_data))
+                x_values.append(i)
+            if sum_errors / len(input_data) <= given_error:
+                print(sum_errors / len(input_data))
+                logging.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
+                logging.info(f"blad wynosi: {sum_errors / len(input_data)}\n")
+                plt.plot(x_values, mistakes)
+                plt.show()
+                plt.title("Zalezność bledu od ilości epok")
+                plt.xlabel("Liczba epok")
+                plt.ylabel("Wartosc bledu")
+                break
+        x_values = []
+        x_values = np.arange(0, epochs, jump)
+        plt.plot(x_values, mistakes)
+        logging.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
+        plt.title("Zalezność bledu od ilości epok")
+        plt.xlabel("Liczba epok")
+        plt.ylabel("Wartosc bledu")
+        plt.show()
 
 
     def test(self, test_data):
@@ -146,7 +144,6 @@ class Network:
         correctly_guessed = 0
         incorrectly_guessed = 0
         confusion_matrix = np.zeros((nr_of_outputs, nr_of_outputs))
-        good = 0
         with open(PATH_TEST_LOGGING, "w") as file:
             for i, sample in enumerate(test_data):
                 target = sample[self.input_num:]
@@ -192,7 +189,7 @@ class Network:
             correctly_guessed += tp
             incorrectly_guessed += fp
         print(confusion_matrix)
-        with open(PATH_TRAIN_EFFECTS, "w") as file:
-            file.write(confusion_string)
-            file.write(f"\n correctly classified: {correctly_guessed}\n")
-            file.write(f"\n incorrectly classified: {incorrectly_guessed}\n")
+        logging.basicConfig(filename=PATH_TRAIN_EFFECTS, level=logging.INFO)
+        logging.info(confusion_string)
+        logging.info(f"\n correctly classified: {correctly_guessed}\n")
+        logging.info(f"\n incorrectly classified: {incorrectly_guessed}\n")

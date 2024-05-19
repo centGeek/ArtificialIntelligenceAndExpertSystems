@@ -17,9 +17,11 @@ def choose_menu():
         [1] -> Stworz siec neuronowa
         [2] -> zapisz sieć neuronową do pliku
         [3] -> wczytaj sieć neuronową z pliku
-        [4] -> trenuj sieć 
-        [5] -> testuj sieć
-        [6] -> zakoncz program: """)
+        [4] -> trenuj sieć irysów
+        [5] -> testuj sieć irystów
+        [6] -> trenuj autoasocjację
+        [7] -> testuj asocjację
+        [8] -> zakoncz program: """)
         return function_type
 
 
@@ -50,19 +52,19 @@ while True:
         else:
             data_for_training = np.loadtxt(input("podaj nazwę pliku z rozszerzeniem txt: "))
         neuron_network = Network(network_structure, True)
-        neuron_network.train(data_for_training, epochs=20, shuffle=False, learning_rate=1, jump=1, given_error=0.1,
-                             momentum=0)
+        neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=1, jump=2, given_error=0,
+                             momentum=0, autoasocjacja=False)
 
     if output_menu == 5:
-        which_data_set = int(input("""
-            [1] - zbiór irysów
-            [2] - autoasocjacja: """))
-        data_for_testing = None
-        if which_data_set == 1:
             data_for_testing = np.genfromtxt(PATH_TEST_DATA, delimiter=',')
             neuron_network.test(data_for_testing)
-        elif which_data_set == 2:
+    if output_menu == 6:
+            network_structure = [4, 2, 4]
+            data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
+            neuron_network = Network(network_structure, True)
+            neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=0.6, jump=2, given_error=0, momentum=0, autoasocjacja=True)
+    if output_menu == 7:
             data_for_testing = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
             neuron_network.test(data_for_testing)
-    if output_menu == 6:
+    if output_menu == 8:
         sys.exit()

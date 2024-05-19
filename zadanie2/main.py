@@ -45,7 +45,7 @@ while True:
     if output_menu == 4:
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
         neuron_network = Network(network_structure, True)
-        neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=1, jump=2, given_error=0,
+        neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=0.6, jump=2, given_error=0,
                              momentum=0, is_last_column_class=True)
 
     if output_menu == 5:
@@ -55,8 +55,8 @@ while True:
         network_structure = [4, 2, 4]
         data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
         neuron_network = Network(network_structure, True)
-        neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=0.2, jump=2, given_error=0,
-                             momentum=0.9, is_last_column_class=False)
+        neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=0.6, jump=2, given_error=0,
+                             momentum=0, is_last_column_class=False)
     if output_menu == 7:
         data_for_testing = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
         neuron_network.test(data_for_testing, False)

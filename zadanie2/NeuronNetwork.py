@@ -106,7 +106,7 @@ class Network:
                 left = row[:-1]
                 one_hot = np.zeros(num_of_outputs)
                 g = int(row[self.input_num])
-                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                one_hot[g] = 1
                 right = one_hot
                 combined.append(np.hstack((left, right)))
             input_data = combined
@@ -116,7 +116,6 @@ class Network:
             sum_errors = 0
             for sample in input_data:
 
-                # target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
                 self.forward(sample[:self.input_num])
                 target = sample[self.input_num:]
                 error = self.activations[-1] - target
@@ -160,7 +159,7 @@ class Network:
                 left = row[:-1]
                 one_hot = np.zeros(nr_of_outputs)
                 g = int(row[self.input_num])
-                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                one_hot[g] = 1
                 right = one_hot
                 combined.append(np.hstack((left, right)))
             test_data = combined
@@ -209,7 +208,7 @@ class Network:
             else:
                 f_measure = 0
             confusion_string += f"Precision: {precision} Recall: {recall} F-measure: {f_measure} \n\n"
-            logging.info(confusion_string)
+            #logging.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
         print(

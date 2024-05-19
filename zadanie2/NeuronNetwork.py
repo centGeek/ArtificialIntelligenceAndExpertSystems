@@ -157,9 +157,6 @@ class Network:
                 predicted_class = np.argmax(output)                
                 target_class = int(target[0])
                 confusion_matrix[target_class, predicted_class] += 1
-                if(target_class == predicted_class):
-                    good+=1
-        print(good)
         confusion_string = ""
         for i in range(nr_of_outputs):
             confusion_string += f"class: {i}\n"
@@ -178,13 +175,23 @@ class Network:
                     fn += confusion_matrix[i, j]
 
             confusion_string += f"TP: {tp} TN: {tn} FP: {fp} FN: {fn}\n"
-            precision = tp / (tp + fp)
-            recall = tp / (tp + fn)
-            f_measure = 2 * (precision * recall) / (precision + recall)
+            if(tp + fp != 0):
+                precision = tp / (tp + fp)
+            else: 
+                precision = 0
+            if(tp != 0):
+                recall = tp / (tp + fn)
+            else: 
+                recall = 0
+            if(precision + recall != 0):
+                f_measure = 2 * (precision * recall) / (precision + recall)
+            else: 
+                f_measure = 0
             confusion_string += f"Precision: {precision} Recall: {recall} F-measure: {f_measure} \n\n"
             logging.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
+        print(confusion_matrix)
         with open(PATH_TRAIN_EFFECTS, "w") as file:
             file.write(confusion_string)
             file.write(f"\n correctly classified: {correctly_guessed}\n")

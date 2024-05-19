@@ -3,8 +3,12 @@ from functions import sigmoid_derivative, mean_squared_error
 from layer import Layer
 import matplotlib.pyplot as plt
 from paths import PATH_TEST_LOGGING, PATH_STATS, PATH_TRAIN_EFFECTS
+import pandas as pd
 import logging
+
 logging.basicConfig(filename=PATH_STATS, level=logging.INFO)
+
+
 class Network:
     def __init__(self, neurons_in_particular_layers: list, bias):
         self.num_layers = len(neurons_in_particular_layers)
@@ -21,10 +25,11 @@ class Network:
         self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
-        derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in enumerate(self.layer_list[:-1])])
+        derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
+                            enumerate(self.layer_list[:-1])])
         self.derivatives = derivatives
 
-        activations = [np.zeros(self.input_num)] #liczba aktywacji taka sama
+        activations = [np.zeros(self.input_num)]  # liczba aktywacji taka sama
         activations.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
         self.activations = activations
 
@@ -89,23 +94,41 @@ class Network:
         for x in range(len(self.layer_list)):
             self.layer_list[x].update_biases(self.biases[x])
 
-    def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum, autoasocjacja):
+    def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum, is_last_column_class):
         mistakes = []
         x_values = []
         # with open(PATH_TEST_LOGGING, "w") as file:
+
+        num_of_outputs = len(self.activations[-1])
+        if is_last_column_class:
+            data_without_last_column = []
+            last_column = []
+            for row in input_data:
+                data_without_last_column.append(row[:-1])
+                last_column.append(row[-1])
+
+            one_hot_encoded = []
+            for sample in input_data:
+                one_hot = np.zeros(num_of_outputs)
+                g = int(sample[self.input_num])
+                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                one_hot_encoded.append(one_hot)
+            # one_hot_encoded = pd.get_dummies(last_column)
+            combined = []
+            for i in range(len(input_data)):
+                left = data_without_last_column[i]
+                right = one_hot_encoded[i]
+                combined.append(np.hstack((left, right)))
+            input_data = combined
         for i in range(epochs):
             if shuffle:
                 np.random.shuffle(input_data)
             sum_errors = 0
             for sample in input_data:
 
-                target = np.zeros_like(self.activations[-1])
-                g = int(sample[self.input_num])
-                target[g] = 1 # target jest tablica, przyjmuje 1 wartosc
-
-                #target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
-                self.forward(sample[:self.input_num])  
-
+                # target = sample[self.input_num:] # target jest tablica, przyjmuje 1 wartosc
+                self.forward(sample[:self.input_num])
+                target = sample[self.input_num:]
                 error = self.activations[-1] - target
                 self.back_propagation(error)
 
@@ -138,9 +161,30 @@ class Network:
         plt.ylabel("Wartosc bledu")
         plt.show()
 
-
-    def test(self, test_data):
+    def test(self, test_data, is_last_column_class):
         nr_of_outputs = self.neurons_in_particular_layers[-1]
+
+        if is_last_column_class:
+            data_without_last_column = []
+            last_column = []
+            for row in test_data:
+                data_without_last_column.append(row[:-1])
+                last_column.append(row[-1])
+
+            one_hot_encoded = []
+            for sample in test_data:
+                one_hot = np.zeros(nr_of_outputs)
+                g = int(sample[self.input_num])
+                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                one_hot_encoded.append(one_hot)
+            # one_hot_encoded = pd.get_dummies(last_column)
+            combined = []
+            for i in range(len(test_data)):
+                left = data_without_last_column[i]
+                right = one_hot_encoded[i]
+                combined.append(np.hstack((left, right)))
+            test_data = combined
+
         correctly_guessed = 0
         incorrectly_guessed = 0
         confusion_matrix = np.zeros((nr_of_outputs, nr_of_outputs))
@@ -151,8 +195,8 @@ class Network:
                 self.forward(sample_input)
                 output = self.activations[-1]
 
-                predicted_class = np.argmax(output)                
-                target_class = int(target[0])
+                predicted_class = np.argmax(output)
+                target_class = int(np.argmax(target))
                 confusion_matrix[target_class, predicted_class] += 1
         confusion_string = ""
         for i in range(nr_of_outputs):
@@ -172,22 +216,24 @@ class Network:
                     fn += confusion_matrix[i, j]
 
             confusion_string += f"TP: {tp} TN: {tn} FP: {fp} FN: {fn}\n"
-            if(tp + fp != 0):
+            if (tp + fp != 0):
                 precision = tp / (tp + fp)
-            else: 
+            else:
                 precision = 0
-            if(tp != 0):
+            if (tp != 0):
                 recall = tp / (tp + fn)
-            else: 
+            else:
                 recall = 0
-            if(precision + recall != 0):
+            if (precision + recall != 0):
                 f_measure = 2 * (precision * recall) / (precision + recall)
-            else: 
+            else:
                 f_measure = 0
             confusion_string += f"Precision: {precision} Recall: {recall} F-measure: {f_measure} \n\n"
             logging.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
+        print(
+            f"Dobrze zakwalifikowano {round((correctly_guessed / (correctly_guessed + incorrectly_guessed) * 100), 5)} %")
         print(confusion_matrix)
         logging.basicConfig(filename=PATH_TRAIN_EFFECTS, level=logging.INFO)
         logging.info(confusion_string)

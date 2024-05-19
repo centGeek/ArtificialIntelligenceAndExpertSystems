@@ -101,23 +101,13 @@ class Network:
 
         num_of_outputs = len(self.activations[-1])
         if is_last_column_class:
-            data_without_last_column = []
-            last_column = []
-            for row in input_data:
-                data_without_last_column.append(row[:-1])
-                last_column.append(row[-1])
-
-            one_hot_encoded = []
-            for sample in input_data:
-                one_hot = np.zeros(num_of_outputs)
-                g = int(sample[self.input_num])
-                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
-                one_hot_encoded.append(one_hot)
-            # one_hot_encoded = pd.get_dummies(last_column)
             combined = []
-            for i in range(len(input_data)):
-                left = data_without_last_column[i]
-                right = one_hot_encoded[i]
+            for row in input_data:
+                left = row[:-1]
+                one_hot = np.zeros(num_of_outputs)
+                g = int(row[self.input_num])
+                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                right = one_hot
                 combined.append(np.hstack((left, right)))
             input_data = combined
         for i in range(epochs):
@@ -165,23 +155,13 @@ class Network:
         nr_of_outputs = self.neurons_in_particular_layers[-1]
 
         if is_last_column_class:
-            data_without_last_column = []
-            last_column = []
-            for row in test_data:
-                data_without_last_column.append(row[:-1])
-                last_column.append(row[-1])
-
-            one_hot_encoded = []
-            for sample in test_data:
-                one_hot = np.zeros(nr_of_outputs)
-                g = int(sample[self.input_num])
-                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
-                one_hot_encoded.append(one_hot)
-            # one_hot_encoded = pd.get_dummies(last_column)
             combined = []
-            for i in range(len(test_data)):
-                left = data_without_last_column[i]
-                right = one_hot_encoded[i]
+            for row in test_data:
+                left = row[:-1]
+                one_hot = np.zeros(nr_of_outputs)
+                g = int(row[self.input_num])
+                one_hot[g] = 1  # target jest tablica, przyjmuje 1 wartosc
+                right = one_hot
                 combined.append(np.hstack((left, right)))
             test_data = combined
 

@@ -1,62 +1,36 @@
 import pandas as pd
 from preprocessing import processingData
-from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_squared_error
-import time
+from modeling import modeling_data_xgboost, modeling_data_randomforestregressor
 from plotting import plot_bar
+#XGBoost
 
-df_por = processingData()
-print(df_por.head())
-print(df_por.info())
+# portugalski 
+file_path_por = './data/student-por.csv'
+df_por = processingData(file_path_por)
+Y_pred_class_por, Y_test_class_por  = modeling_data_xgboost(file_path_por)
+plot_bar(Y_test_class_por, Y_pred_class_por, 'G3', "portugalskiego")
+# matematyka
+file_path_mat = './data/student-mat.csv'
+df_mat = processingData(file_path_mat)
+Y_pred_class_mat, Y_test_class_mat  = modeling_data_xgboost(file_path_mat)
+plot_bar(Y_test_class_por, Y_pred_class_por, 'G3', "matematyki")
 
-# dzielimy na X_data, Y_Data
-X_data = df_por.drop(columns=['G3'])
-Y_data = df_por['G3'] 
+#RandomTreeForstRegressor
 
-X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.2, random_state=42)
-print("Rozmiar danych treningowych:", X_train.shape)
-print("Rozmiar danych testowych:", X_test.shape)
-                 
-for column in X_train.columns:
-    if X_train[column].dtype == 'object':
-        X_train[column] = X_train[column].astype(float)
-    if X_test[column].dtype == 'object':
-        X_test[column] = X_test[column].astype(float)
+# portugalski 
+Y_pred_class_por, Y_test_class_por  = modeling_data_randomforestregressor(file_path_por)
+plot_bar(Y_test_class_por, Y_pred_class_por, 'G3', "portugalskiego")
+# matematyka
+Y_pred_class_mat, Y_test_class_mat  = modeling_data_randomforestregressor(file_path_mat)
+plot_bar(Y_test_class_por, Y_pred_class_por, 'G3', "matematyki")
 
-xgb_model = XGBRegressor()
-start = time.time()
-xgb_model.fit(X_train, Y_train)
-Y_pred = xgb_model.predict(X_test)
-end = time.time()
-print(f"XGBoost fitting and predicting: {end-start}")
 
-mse = mean_squared_error(Y_test, Y_pred)
-print("Błąd średniokwadratowy (MSE):", mse)
+
+# eda
 
 
 
 
-def assign_grade(value):
-    if value <= 6:
-        return 'bardzo niska'
-    if value <= 10:
-        return 'niska'
-    elif value <= 14:
-        return 'średnia'
-    elif value <=17:
-        return 'wysoka'
-    else:
-        return 'bardzo wysoka'
-
-Y_pred_class = [assign_grade(int(value)) for value in Y_pred]
-Y_test_class = [assign_grade(int(value)) for value in Y_test]
-
-
-accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
-print("Dokładność klasyfikacji:", accuracy)
-
-plot_bar(Y_test_class, Y_pred_class)
 
 
 

@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from functions import sigmoid_derivative, mean_squared_error
 from layer import Layer
@@ -36,7 +38,8 @@ class Network:
         weights.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
                         enumerate(self.layer_list[:-1])])
         self.weights = weights
-        self.old_weights = weights
+        # self.old_weights = weights.copy()
+        self.old_weights = [w.T.copy() for w in weights]
 
         biases = []
         biases.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
@@ -45,6 +48,7 @@ class Network:
         derivatives_biases = []
         derivatives_biases.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
         self.derivatives_biases = derivatives_biases
+
     def forward(self, input_vector):
         self.activations[0] = np.array(input_vector)
         next_activation = self.activations[0]
@@ -71,9 +75,30 @@ class Network:
         for i in range(len(self.weights)):
             derivatives = self.derivatives[i]
             if momentum != 0:
-                current_weights = self.weights[i]
-                self.weights[i] -= derivatives.T * learning_rate + (momentum * (current_weights - self.old_weights[i]))
-                self.old_weights[i] = current_weights
+
+                remember = copy.deepcopy(self.weights[i])
+                diff = self.old_weights[i] - self.weights[i]
+                self.weights[i] -= derivatives.T * learning_rate + (momentum * diff)
+
+                self.old_weights[i] = remember
+
+                #print("sdasd")
+                # current_weights = self.weights[i]
+                #
+                # dif = self.weights[i] - self.old_weights[i]
+                # subtractCalc = (derivatives.T * learning_rate) + (momentum * dif)
+                # calculatedNewWeights = self.weights[i] - subtractCalc
+                #
+                # self.weights[
+                #     i] = calculatedNewWeights  # self.weights[i] - derivatives.T * learning_rate + (momentum * dif)
+
+                # self.old_weights[i] = current_weights
+
+                # dif = self.weights[i] - self.old_weights[i]
+                # a = self.weights[i]
+                # b = self.old_weights[i]
+                #print("alsihdkaushd")
+                # aoishpdiuas
             else:
                 self.weights[i] -= derivatives.T * learning_rate
         self.update_neurons_weights()
@@ -132,6 +157,9 @@ class Network:
                 logging.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
                 logging.info(f"blad wynosi: {sum_errors / len(input_data)}\n")
                 plt.plot(x_values, mistakes)
+                plt.ylim(0, 0.2)
+                plt.axhline(y=0, color='r', linestyle='-')
+
                 plt.show()
                 plt.title("Zalezność bledu od ilości epok")
                 plt.xlabel("Liczba epok")
@@ -141,6 +169,8 @@ class Network:
         x_values = np.arange(0, epochs, jump)
         plt.plot(x_values, mistakes)
         logging.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
+        plt.ylim(0, 0.3)
+        plt.axhline(y=0, color='r', linestyle='-')
         plt.title("Zalezność bledu od ilości epok")
         plt.xlabel("Liczba epok")
         plt.ylabel("Wartosc bledu")
@@ -168,11 +198,12 @@ class Network:
             target = sample[self.input_num:]
             sample_input = sample[:self.input_num]
             self.forward(sample_input)
-            output = self.activations[-1]    
+            output = self.activations[-1]
             predicted_class = np.argmax(output)
             target_class = int(np.argmax(target))
             error = mean_squared_error(target, self.activations[-1])
-            logging.info(f"activations: {output}, target: {target}, error: {error}")
+            logging.info(
+                f"activations: {['{:.5f}'.format(a) for a in output]}, target: {target}, error: {'{:.5f}'.format(error)}")
             confusion_matrix[target_class, predicted_class] += 1
         confusion_string = ""
         for i in range(nr_of_outputs):
@@ -205,10 +236,11 @@ class Network:
             else:
                 f_measure = 0
             confusion_string += f"Precision: {precision} Recall: {recall} F-measure: {f_measure} \n\n"
-            #logging.info(confusion_string)
+            # logging.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
-        print(f"Dobrze zakwalifikowano {round((correctly_guessed / (correctly_guessed + incorrectly_guessed) * 100), 5)} %")
+        print(
+            f"Dobrze zakwalifikowano {round((correctly_guessed / (correctly_guessed + incorrectly_guessed) * 100), 5)} %")
         print(confusion_matrix)
         logging.basicConfig(filename=PATH_TRAIN_EFFECTS, level=logging.INFO)
         logging.info(confusion_string)

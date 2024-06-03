@@ -43,20 +43,32 @@ while True:
         neuron_network = load(PATH_SAVED)
         network_structure = neuron_network.neurons_in_particular_layers
     if output_menu == 4:
+        inputLearningRate = float(input("Podaj wartosc learningRate: "))
+        inputMomentum = float(input("Podaj wartosc momentum: "))
+        if (not (1 > inputMomentum > 0)) or (not (1 > inputLearningRate > 0)):
+            print("Podano błędne wartości")
+            continue
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
         neuron_network = Network(network_structure, True)
-        neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=0.6, jump=2, given_error=0,
-                             momentum=0, is_last_column_class=True)
+        neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=inputLearningRate, jump=2,
+                             given_error=0,
+                             momentum=inputMomentum, is_last_column_class=True)
 
     if output_menu == 5:
         data_for_testing = np.genfromtxt(PATH_TEST_DATA, delimiter=',')
         neuron_network.test(data_for_testing, True)
     if output_menu == 6:
         network_structure = [4, 2, 4]
+        inputLearningRate = float(input("Podaj wartosc learningRate: "))
+        inputMomentum = float(input("Podaj wartosc momentum: "))
+        if (not (1 > inputMomentum > 0)) or (not (1 > inputLearningRate > 0)):
+            print("Podano błędne wartości")
+            continue
         data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
         neuron_network = Network(network_structure, True)
-        neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=0.6, jump=2, given_error=0,
-                             momentum=0, is_last_column_class=False)
+        neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=inputLearningRate, jump=1,
+                             given_error=0,
+                             momentum=inputMomentum, is_last_column_class=False)
     if output_menu == 7:
         data_for_testing = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
         neuron_network.test(data_for_testing, False)

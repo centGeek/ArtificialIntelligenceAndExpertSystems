@@ -45,7 +45,7 @@ while True:
     if output_menu == 4:
         inputLearningRate = float(input("Podaj wartosc learningRate: "))
         inputMomentum = float(input("Podaj wartosc momentum: "))
-        if (not (1 > inputMomentum > 0)) or (not (1 > inputLearningRate > 0)):
+        if (not (1 > inputMomentum >= 0)) or (not (1 > inputLearningRate > 0)):
             print("Podano błędne wartości")
             continue
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
@@ -61,7 +61,7 @@ while True:
         network_structure = [4, 2, 4]
         inputLearningRate = float(input("Podaj wartosc learningRate: "))
         inputMomentum = float(input("Podaj wartosc momentum: "))
-        if (not (1 > inputMomentum > 0)) or (not (1 > inputLearningRate > 0)):
+        if (not (1 > inputMomentum >= 0)) or (not (1 > inputLearningRate > 0)):
             print("Podano błędne wartości")
             continue
         data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')

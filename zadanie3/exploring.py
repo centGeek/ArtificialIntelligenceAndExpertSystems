@@ -9,7 +9,8 @@ def correlation_matrix(data):
     plt.show()
 
 def futureProcessing(data : pd.DataFrame):
+    print(data)
     # z powodu najmniejszej korelacji tych zmiennych, sprobujmy usunac je z naszego datasetu
-    columns_to_drop = ['activities', 'pstatus', 'famsize']
+    columns_to_drop = ['activities', 'Pstatus', 'famsize']
     df = data.drop(columns=columns_to_drop)
     return df

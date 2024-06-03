@@ -34,3 +34,39 @@ def plot_bar(Y_test, Y_pred, grade, subject):
     plt.grid(True)
     plt.tight_layout() 
     plt.show()
+
+def plot_errors(mse_xgb_por, mae_xgb_por, mse_xgb_mat, mae_xgb_mat, 
+                mse_random_forest_por, mae_random_forest_por, mse_random_forest_mat, mae_random_forest_mat, 
+                mse_gbr_por, mae_gbr_por, mse_gbr_mat, mae_gbr_mat,
+                r2_xgb_por, r2_xgb_mat, r2_random_forest_por, r2_random_forest_mat, r2_gbr_por, r2_gbr_mat):
+    
+    models = ['XGBoost', 'Random Forest', 'Gradient Boosting']
+    metrics = ['MSE', 'MAE', 'R^2']
+    languages = ['Portuguese', 'Mathematics']
+    
+    colors = ['blue', 'green', 'red']
+    
+    mse_por = [mse_xgb_por, mse_random_forest_por, mse_gbr_por]
+    mae_por = [mae_xgb_por, mae_random_forest_por, mae_gbr_por]
+    r2_por = [r2_xgb_por, r2_random_forest_por, r2_gbr_por]
+    
+    mse_mat = [mse_xgb_mat, mse_random_forest_mat, mse_gbr_mat]
+    mae_mat = [mae_xgb_mat, mae_random_forest_mat, mae_gbr_mat]
+    r2_mat = [r2_xgb_mat, r2_random_forest_mat, r2_gbr_mat]
+    
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig.suptitle('Model Performance Comparison', fontsize=16)
+    
+    for i, language in enumerate(languages):
+        for j, metric in enumerate(metrics):
+            axes[i, j].bar(models, mse_por if metric == 'MSE' and language == 'Portuguese' else 
+                                    (mae_por if metric == 'MAE' and language == 'Portuguese' else 
+                                    (r2_por if metric == 'R^2' and language == 'Portuguese' else 
+                                    (mse_mat if metric == 'MSE' and language == 'Mathematics' else 
+                                    (mae_mat if metric == 'MAE' and language == 'Mathematics' else r2_mat)))),
+                                    color=colors)
+            axes[i, j].set_title(f'{language} - {metric}')
+            axes[i, j].set_ylabel(metric)
+        
+    plt.tight_layout()
+    plt.show()

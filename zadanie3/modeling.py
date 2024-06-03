@@ -46,7 +46,7 @@ def modeling_data_xgboost(file_path):
 
 
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
-    print("Dokładność klasyfikacji:", accuracy)
+    print("Classification Accuracy:", accuracy)
     return Y_pred_class, Y_test_class, mse, mae, r2
 def modeling_data_randomforestregressor(file_path, n_estimators=100, max_depth=None, min_samples_split=2, min_samples_leaf=1, max_features='sqrt'):
     Y_train, Y_test, X_train, X_test = splitting_data(file_path)
@@ -77,7 +77,7 @@ def modeling_data_randomforestregressor(file_path, n_estimators=100, max_depth=N
     Y_test_class = [assign_grade(int(value)) for value in Y_test]
     
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
-    print("Dokładność klasyfikacji:", accuracy)
+    print("Classification Accuracy:", accuracy)
     
     return Y_pred_class, Y_test_class, mse, mae, r2
 def modeling_data_svm(file_path):
@@ -103,7 +103,7 @@ def modeling_data_svm(file_path):
     Y_test_class = [assign_grade(int(value)) for value in Y_test]
     
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
-    print("Dokładność klasyfikacji:", accuracy)
+    print("Classification Accuracy:", accuracy)
     
     return Y_pred_class, Y_test_class, mse, mae, r2
 def modeling_data_gbr(file_path):

@@ -10,7 +10,7 @@ def correlation_matrix(data):
 
 def futureProcessing(data : pd.DataFrame):
     print(data)
-    # z powodu najmniejszej korelacji tych zmiennych, sprobujmy usunac je z naszego datasetu
-    columns_to_drop = ['activities', 'Pstatus', 'famsize']
+    #najmniejsza korelacja zmiennych w stosunku do G3 <= 0.05, sprobujmy usunac je z datasetu
+    columns_to_drop = ['activities', 'Pstatus', 'famsize', 'Fjob', 'famrel', 'famsup', 'paid', 'nursery']
     df = data.drop(columns=columns_to_drop)
     return df

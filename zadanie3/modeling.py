@@ -47,7 +47,7 @@ def modeling_data_xgboost(file_path):
 
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Classification Accuracy:", accuracy)
-    return Y_pred_class, Y_test_class, mse, mae, r2
+    return Y_pred_class, Y_test_class, mse, mae, r2, accuracy
 def modeling_data_randomforestregressor(file_path, n_estimators=100, max_depth=None, min_samples_split=2, min_samples_leaf=1, max_features='sqrt'):
     Y_train, Y_test, X_train, X_test = splitting_data(file_path)
     rf_model = RandomForestRegressor(
@@ -79,7 +79,7 @@ def modeling_data_randomforestregressor(file_path, n_estimators=100, max_depth=N
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Classification Accuracy:", accuracy)
     
-    return Y_pred_class, Y_test_class, mse, mae, r2
+    return Y_pred_class, Y_test_class, mse, mae, r2, accuracy
 def modeling_data_svm(file_path):
     Y_train, Y_test, X_train, X_test = splitting_data(file_path)
     svm_model = SVR()
@@ -105,7 +105,7 @@ def modeling_data_svm(file_path):
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Classification Accuracy:", accuracy)
     
-    return Y_pred_class, Y_test_class, mse, mae, r2
+    return Y_pred_class, Y_test_class, mse, mae, r2, accuracy
 def modeling_data_gbr(file_path):
     Y_train, Y_test, X_train, X_test = splitting_data(file_path)    
 
@@ -131,4 +131,4 @@ def modeling_data_gbr(file_path):
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Classification Accuracy:", accuracy)
     
-    return Y_pred_class, Y_test_class, mse, mae, r2
+    return Y_pred_class, Y_test_class, mse, mae, r2, accuracy

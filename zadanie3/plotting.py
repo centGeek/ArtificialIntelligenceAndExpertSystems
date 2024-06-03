@@ -7,7 +7,7 @@ def count_values(data):
     return dict(zip(unique_values, counts)) #slownik - klucz (unikalne wartosci) - values (liczby wystapien)
 
 
-def plot_bar(Y_test, Y_pred, grade, subject):
+def plot_bar(Y_test, Y_pred, grade, subject, model):
     actual_counts = count_values(Y_test)
     predicted_counts = count_values(Y_pred)
     all_labels = set(list(actual_counts.keys()) + list(predicted_counts.keys()))
@@ -28,7 +28,7 @@ def plot_bar(Y_test, Y_pred, grade, subject):
 
     plt.xlabel(f'Wartość {grade}')
     plt.ylabel('Liczba wystąpień')
-    plt.title(f'Liczba wystąpień rzeczywistych i przewidywanych wartości {grade}  dla toku ksztalcenia {subject}')
+    plt.title(f'Liczba wystąpień rzeczywistych i przewidywanych wartości {grade}  dla toku ksztalcenia {subject} dla modelu: {model}')
     plt.xticks(np.arange(n) + bar_width / 2, labels, rotation=45)
     plt.legend()
     plt.grid(True)
@@ -38,33 +38,40 @@ def plot_bar(Y_test, Y_pred, grade, subject):
 def plot_errors(mse_xgb_por, mae_xgb_por, mse_xgb_mat, mae_xgb_mat, 
                 mse_random_forest_por, mae_random_forest_por, mse_random_forest_mat, mae_random_forest_mat, 
                 mse_gbr_por, mae_gbr_por, mse_gbr_mat, mae_gbr_mat,
-                r2_xgb_por, r2_xgb_mat, r2_random_forest_por, r2_random_forest_mat, r2_gbr_por, r2_gbr_mat):
+                r2_xgb_por, r2_xgb_mat, r2_random_forest_por, r2_random_forest_mat, r2_gbr_por, r2_gbr_mat,
+                accuracy_xgb_por, accuracy_xgb_mat, accuracy_random_forest_por, accuracy_random_forest_mat, 
+                accuracy_gbr_por, accuracy_gbr_mat):
     
     models = ['XGBoost', 'Random Forest', 'Gradient Boosting']
-    metrics = ['MSE', 'MAE', 'R^2']
+    metrics = ['MSE', 'MAE', 'R^2', 'Accuracy']
     languages = ['Portuguese', 'Mathematics']
     
-    colors = ['blue', 'green', 'red']
+    colors = ['blue', 'green', 'red', 'orange']
     
     mse_por = [mse_xgb_por, mse_random_forest_por, mse_gbr_por]
     mae_por = [mae_xgb_por, mae_random_forest_por, mae_gbr_por]
     r2_por = [r2_xgb_por, r2_random_forest_por, r2_gbr_por]
+    accuracy_por = [accuracy_xgb_por, accuracy_random_forest_por, accuracy_gbr_por]
     
     mse_mat = [mse_xgb_mat, mse_random_forest_mat, mse_gbr_mat]
     mae_mat = [mae_xgb_mat, mae_random_forest_mat, mae_gbr_mat]
     r2_mat = [r2_xgb_mat, r2_random_forest_mat, r2_gbr_mat]
+    accuracy_mat = [accuracy_xgb_mat, accuracy_random_forest_mat, accuracy_gbr_mat]
     
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig, axes = plt.subplots(2, 4, figsize=(20, 10))
     fig.suptitle('Model Performance Comparison', fontsize=16)
     
     for i, language in enumerate(languages):
         for j, metric in enumerate(metrics):
-            axes[i, j].bar(models, mse_por if metric == 'MSE' and language == 'Portuguese' else 
-                                    (mae_por if metric == 'MAE' and language == 'Portuguese' else 
-                                    (r2_por if metric == 'R^2' and language == 'Portuguese' else 
-                                    (mse_mat if metric == 'MSE' and language == 'Mathematics' else 
-                                    (mae_mat if metric == 'MAE' and language == 'Mathematics' else r2_mat)))),
-                                    color=colors)
+            if metric == 'Accuracy':
+                axes[i, j].bar(models, accuracy_por if language == 'Portuguese' else accuracy_mat, color=colors)
+            else:
+                axes[i, j].bar(models, mse_por if metric == 'MSE' and language == 'Portuguese' else 
+                                        (mae_por if metric == 'MAE' and language == 'Portuguese' else 
+                                        (r2_por if metric == 'R^2' and language == 'Portuguese' else 
+                                        (mse_mat if metric == 'MSE' and language == 'Mathematics' else 
+                                        (mae_mat if metric == 'MAE' and language == 'Mathematics' else r2_mat)))),
+                                        color=colors)
             axes[i, j].set_title(f'{language} - {metric}')
             axes[i, j].set_ylabel(metric)
         

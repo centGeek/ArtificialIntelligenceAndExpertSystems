@@ -1,7 +1,7 @@
 from sklearn.preprocessing import LabelEncoder 
 import pandas as pd
-def processingData(file_path_por):
-    df = pd.read_csv(file_path_por)
+def processingData(file_path):
+    df = pd.read_csv(file_path)
     df = df['school;sex;age;address;famsize;Pstatus;Medu;Fedu;Mjob;Fjob;reason;guardian;traveltime;studytime;failures;schoolsup;famsup;paid;activities;nursery;higher;internet;romantic;famrel;freetime;goout;Dalc;Walc;health;absences;G1;G2;G3'].str.split(';', expand=True)
 
     df.columns = ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian', 

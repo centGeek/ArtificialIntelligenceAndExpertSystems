@@ -5,6 +5,9 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor
 import time
+from sklearn.metrics import mean_squared_error
+from sklearn.svm import SVR
+from sklearn.ensemble import GradientBoostingRegressor
 
 def splitting_data(file_path):
     df = processingData(file_path)
@@ -40,9 +43,15 @@ def modeling_data_xgboost(file_path):
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Dokładność klasyfikacji:", accuracy)
     return Y_pred_class, Y_test_class
-def modeling_data_randomforestregressor(file_path):
+def modeling_data_randomforestregressor(file_path, n_estimators=100, max_depth=None, min_samples_split=2, min_samples_leaf=1, max_features='sqrt'):
     Y_train, Y_test, X_train, X_test = splitting_data(file_path)
-    rf_model = RandomForestRegressor()
+    rf_model = RandomForestRegressor(
+        # n_estimators=n_estimators,
+        # max_depth=max_depth,
+        # min_samples_split=min_samples_split,
+        # min_samples_leaf=min_samples_leaf,
+        # max_features=max_features
+    )
     
     start = time.time()
     rf_model.fit(X_train, Y_train)
@@ -58,5 +67,45 @@ def modeling_data_randomforestregressor(file_path):
     
     accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
     print("Dokładność klasyfikacji:", accuracy)
+    
+    return Y_pred_class, Y_test_class
+def modeling_data_svm(file_path):
+    Y_train, Y_test, X_train, X_test = splitting_data(file_path)
+    svm_model = SVR()
+    
+    start = time.time()
+    svm_model.fit(X_train, Y_train)
+    Y_pred = svm_model.predict(X_test)
+    end = time.time()
+    print(f"Time SVM fitting and predicting: {end - start}")
+    
+    mse = mean_squared_error(Y_test, Y_pred)
+    print("Błąd średniokwadratowy (MSE):", mse)
+    
+    Y_pred_class = [assign_grade(int(value)) for value in Y_pred]
+    Y_test_class = [assign_grade(int(value)) for value in Y_test]
+    
+    accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
+    print("Dokładność klasyfikacji:", accuracy)
+    
+    return Y_pred_class, Y_test_class
+def modeling_data_gbr(file_path):
+    Y_train, Y_test, X_train, X_test = splitting_data(file_path)    
+
+    gbr_model = GradientBoostingRegressor()
+    start = time.time()
+    gbr_model.fit(X_train, Y_train)
+    Y_pred = gbr_model.predict(X_test)
+    end = time.time()
+    print(f"Time GBR fitting and predicting: {end - start}")
+    
+    mse = mean_squared_error(Y_test, Y_pred)
+    print("Mean Squared Error (MSE):", mse)
+    
+    Y_pred_class = [assign_grade(int(value)) for value in Y_pred]
+    Y_test_class = [assign_grade(int(value)) for value in Y_test]
+    
+    accuracy = sum(1 for p, t in zip(Y_pred_class, Y_test_class) if p == t) / len(Y_test_class)
+    print("Classification Accuracy:", accuracy)
     
     return Y_pred_class, Y_test_class

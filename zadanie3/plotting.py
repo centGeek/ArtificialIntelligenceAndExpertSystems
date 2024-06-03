@@ -19,7 +19,6 @@ def plot_bar(Y_test, Y_pred, grade, subject):
     n = len(labels)
     bar_width = 0.4 
 
-    
     plt.figure(figsize=(10, 5))
 
     

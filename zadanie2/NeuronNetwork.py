@@ -136,6 +136,8 @@ class Network:
     def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum, is_last_column_class):
         mistakes = []
         x_values = []
+        avg_error = None
+        reached_given_error = False
         num_of_outputs = len(self.activations[-1])
         if is_last_column_class:
             combined = []
@@ -174,12 +176,15 @@ class Network:
                 print(avg_error)
                 stats_logger.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
                 stats_logger.info(f"blad wynosi: {avg_error}\n")
+                reached_given_error = True
                 break
+        if not reached_given_error:
+            stats_logger.info(f"Nie osiagnieto podanego bledu {given_error} po {epochs} epokach, "
+                              f"koncowy blad: {avg_error}")
         # jeden wykres, rysowany z faktycznie zebranych punktow - przy przerwaniu
         # petli x_values jest krotsze niz arange(0, epochs, jump) i plot wysypywal sie
         # na "x and y must have same first dimension"
         plt.plot(x_values, mistakes)
-        stats_logger.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
         plt.ylim(0, 0.3)
         plt.axhline(y=0, color='r', linestyle='-')
         plt.title("Zalezność bledu od ilości epok")

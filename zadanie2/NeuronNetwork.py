@@ -7,8 +7,24 @@ import matplotlib.pyplot as plt
 from paths import PATH_TEST_LOGGING, PATH_STATS, PATH_TRAIN_EFFECTS
 import pandas as pd
 import logging
+import os
 
-logging.basicConfig(filename=PATH_STATS, level=logging.INFO)
+
+def _create_logger(name, path):
+    """Osobny logger z wlasnym plikiem - basicConfig dziala tylko raz na proces."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        handler = logging.FileHandler(path, encoding="utf-8")
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        logger.addHandler(handler)
+        logger.propagate = False
+    return logger
+
+
+stats_logger = _create_logger("statystyki", PATH_STATS)
+effects_logger = _create_logger("skutecznosc", PATH_TRAIN_EFFECTS)
 
 
 class Network:
@@ -149,13 +165,13 @@ class Network:
 
                 sum_errors += mean_squared_error(target, self.activations[-1])
             if i % jump == 0:
-                logging.info(f"{sum_errors / len(input_data)}")
+                stats_logger.info(f"{sum_errors / len(input_data)}")
                 mistakes.append(sum_errors / len(input_data))
                 x_values.append(i)
             if sum_errors / len(input_data) <= given_error:
                 print(sum_errors / len(input_data))
-                logging.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
-                logging.info(f"blad wynosi: {sum_errors / len(input_data)}\n")
+                stats_logger.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
+                stats_logger.info(f"blad wynosi: {sum_errors / len(input_data)}\n")
                 plt.plot(x_values, mistakes)
                 plt.ylim(0, 0.2)
                 plt.axhline(y=0, color='r', linestyle='-')
@@ -168,7 +184,7 @@ class Network:
         x_values = []
         x_values = np.arange(0, epochs, jump)
         plt.plot(x_values, mistakes)
-        logging.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
+        stats_logger.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
         plt.ylim(0, 0.3)
         plt.axhline(y=0, color='r', linestyle='-')
         plt.title("Zalezność bledu od ilości epok")
@@ -177,7 +193,7 @@ class Network:
         plt.show()
 
     def test(self, test_data, is_last_column_class):
-        logging.info("\n\n\nTestowanie\n\n")
+        stats_logger.info("\n\n\nTestowanie\n\n")
         nr_of_outputs = self.neurons_in_particular_layers[-1]
 
         if is_last_column_class:
@@ -202,7 +218,7 @@ class Network:
             predicted_class = np.argmax(output)
             target_class = int(np.argmax(target))
             error = mean_squared_error(target, self.activations[-1])
-            logging.info(
+            stats_logger.info(
                 f"activations: {['{:.5f}'.format(a) for a in output]}, target: {target}, error: {'{:.5f}'.format(error)}")
             confusion_matrix[target_class, predicted_class] += 1
         confusion_string = ""
@@ -236,13 +252,12 @@ class Network:
             else:
                 f_measure = 0
             confusion_string += f"Precision: {precision} Recall: {recall} F-measure: {f_measure} \n\n"
-            # logging.info(confusion_string)
+            # stats_logger.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
         print(
             f"Dobrze zakwalifikowano {round((correctly_guessed / (correctly_guessed + incorrectly_guessed) * 100), 5)} %")
         print(confusion_matrix)
-        logging.basicConfig(filename=PATH_TRAIN_EFFECTS, level=logging.INFO)
-        logging.info(confusion_string)
-        logging.info(f"\n correctly classified: {correctly_guessed}\n")
-        logging.info(f"\n incorrectly classified: {incorrectly_guessed}\n")
+        effects_logger.info(confusion_string)
+        effects_logger.info(f"\n correctly classified: {correctly_guessed}\n")
+        effects_logger.info(f"\n incorrectly classified: {incorrectly_guessed}\n")

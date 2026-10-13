@@ -184,6 +184,9 @@ class Network:
         # jeden wykres, rysowany z faktycznie zebranych punktow - przy przerwaniu
         # petli x_values jest krotsze niz arange(0, epochs, jump) i plot wysypywal sie
         # na "x and y must have same first dimension"
+        # nowa figura na kazdy trening - bez tego matplotlib dorysowywal kolejne
+        # przebiegi na te same osie i wykresy z roznych uczen sie nakladaly
+        plt.figure()
         plt.plot(x_values, mistakes)
         plt.ylim(0, 0.3)
         plt.axhline(y=0, color='r', linestyle='-')

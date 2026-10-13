@@ -50,12 +50,12 @@ class Network:
         activations.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
         self.activations = activations
 
-        weights = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
-        weights.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
-                        enumerate(self.layer_list[:-1])])
-        self.weights = weights
-        # self.old_weights = weights.copy()
-        self.old_weights = [w.T.copy() for w in weights]
+        # Bufory wag startuja z rzeczywistymi wagami neuronow. Wczesniej byly zerami,
+        # wiec w pierwszym kroku momentum diff = old_weights - weights = -W0 i zamiast
+        # W1 = W0 - lr*grad wychodzilo W1 = (1 + momentum) * W0 - lr*grad, czyli skok
+        # przeskalowujacy wszystkie wagi sieci (dla momentum=0.9 az 1.9-krotnie).
+        self.weights = [layer.get_weights() for layer in self.layer_list]
+        self.old_weights = [w.copy() for w in self.weights]
 
         biases = []
         biases.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])

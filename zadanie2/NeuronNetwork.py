@@ -164,25 +164,20 @@ class Network:
                     self.update_biases(learning_rate)
 
                 sum_errors += mean_squared_error(target, self.activations[-1])
-            if i % jump == 0:
-                stats_logger.info(f"{sum_errors / len(input_data)}")
-                mistakes.append(sum_errors / len(input_data))
+            avg_error = sum_errors / len(input_data)
+            # epoke konczaca uczenie zapisujemy zawsze, zeby wykres siegal do konca
+            if i % jump == 0 or avg_error <= given_error:
+                stats_logger.info(f"{avg_error}")
+                mistakes.append(avg_error)
                 x_values.append(i)
-            if sum_errors / len(input_data) <= given_error:
-                print(sum_errors / len(input_data))
+            if avg_error <= given_error:
+                print(avg_error)
                 stats_logger.info(f"Uzyskano zadany poziom bledu w epoce {i}\n")
-                stats_logger.info(f"blad wynosi: {sum_errors / len(input_data)}\n")
-                plt.plot(x_values, mistakes)
-                plt.ylim(0, 0.2)
-                plt.axhline(y=0, color='r', linestyle='-')
-
-                plt.show()
-                plt.title("Zalezność bledu od ilości epok")
-                plt.xlabel("Liczba epok")
-                plt.ylabel("Wartosc bledu")
+                stats_logger.info(f"blad wynosi: {avg_error}\n")
                 break
-        x_values = []
-        x_values = np.arange(0, epochs, jump)
+        # jeden wykres, rysowany z faktycznie zebranych punktow - przy przerwaniu
+        # petli x_values jest krotsze niz arange(0, epochs, jump) i plot wysypywal sie
+        # na "x and y must have same first dimension"
         plt.plot(x_values, mistakes)
         stats_logger.info(f"Nie osiagnieto podanego bledu: {error} po {epochs} epokach")
         plt.ylim(0, 0.3)

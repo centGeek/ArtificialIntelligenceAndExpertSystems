@@ -9,6 +9,21 @@ neuron_network = None
 network_structure = [4, 10, 10, 3]
 
 
+def prepare_network(existing_network, structure, bias):
+    """Zwraca siec do trenowania: istniejaca (dotrenowanie) albo swiezo utworzona.
+
+    Bez tego kazde wejscie w trening tworzylo nowa siec, wiec wczytanie sieci
+    z pliku i wybranie treningu po cichu wyrzucalo wczytany model.
+    """
+    if existing_network is not None and existing_network.neurons_in_particular_layers == structure:
+        answer = input("Istnieje juz siec o tej strukturze. Kontynuowac jej uczenie? [t/n]: ")
+        if answer.strip().lower() in ("t", "tak"):
+            print("Kontynuacja uczenia istniejacej sieci.")
+            return existing_network
+        print("Tworzenie nowej sieci.")
+    return Network(structure, bias)
+
+
 def choose_menu():
     while True:
         function_type = input(f"""
@@ -49,7 +64,7 @@ while True:
             print("Podano błędne wartości")
             continue
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
-        neuron_network = Network(network_structure, True)
+        neuron_network = prepare_network(neuron_network, network_structure, True)
         neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=inputLearningRate, jump=2,
                              given_error=0,
                              momentum=inputMomentum, is_last_column_class=True)
@@ -65,7 +80,7 @@ while True:
             print("Podano błędne wartości")
             continue
         data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
-        neuron_network = Network(network_structure, True)
+        neuron_network = prepare_network(neuron_network, network_structure, True)
         neuron_network.train(data_for_training, epochs=1000, shuffle=True, learning_rate=inputLearningRate, jump=1,
                              given_error=0,
                              momentum=inputMomentum, is_last_column_class=False)

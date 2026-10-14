@@ -1,7 +1,7 @@
 import copy
 
 import numpy as np
-from functions import sigmoid_derivative, mean_squared_error
+from functions import sigmoid_derivative, mean_squared_error, mean_squared_error_derivative
 from layer import Layer
 import matplotlib.pyplot as plt
 from paths import PATH_TEST_LOGGING, PATH_STATS, PATH_TRAIN_EFFECTS
@@ -157,7 +157,7 @@ class Network:
 
                 self.forward(sample[:self.input_num])
                 target = sample[self.input_num:]
-                error = self.activations[-1] - target
+                error = mean_squared_error_derivative(target, self.activations[-1])
                 self.back_propagation(error)
 
                 self.update_weights(learning_rate, momentum)

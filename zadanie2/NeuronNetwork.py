@@ -65,6 +65,36 @@ class Network:
         derivatives_biases.extend([np.zeros(layer.neuron_num) for layer in self.layer_list])
         self.derivatives_biases = derivatives_biases
 
+        # statystyki normalizacji cech - wypelnia je fit_normalization(),
+        # None oznacza dane uzywane bez skalowania (np. autoasocjacja)
+        self.feature_mean = None
+        self.feature_std = None
+
+    def fit_normalization(self, data):
+        """Liczy srednia i odchylenie cech na danych TRENINGOWYCH i zapamietuje je.
+
+        Statystyki licza sie wylacznie na zbiorze treningowym - policzenie ich
+        na tescie byloby wyciekiem informacji. Zyja na obiekcie sieci, wiec
+        wedruja razem z nia przy zapisie do pliku i test nie moze sie z nimi
+        rozjechac.
+        """
+        self.feature_mean = data[:, :self.input_num].mean(axis=0)
+        self.feature_std = data[:, :self.input_num].std(axis=0)
+        self.feature_std[self.feature_std == 0] = 1.0  # cecha stala - nie dziel przez zero
+        return self.normalize(data)
+
+    def normalize(self, data):
+        """Skaluje cechy wedlug zapamietanych statystyk (z-score).
+
+        Siec bez statystyk zwraca dane nietkniete. getattr obsluguje modele
+        zapisane do pliku przed wprowadzeniem tych pol.
+        """
+        if getattr(self, "feature_mean", None) is None:
+            return data
+        data = data.copy()
+        data[:, :self.input_num] = (data[:, :self.input_num] - self.feature_mean) / self.feature_std
+        return data
+
     def forward(self, input_vector):
         self.activations[0] = np.array(input_vector)
         next_activation = self.activations[0]

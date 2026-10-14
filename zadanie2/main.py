@@ -70,12 +70,14 @@ while True:
             continue
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
         neuron_network = prepare_network(neuron_network, network_structure, use_bias)
+        data_for_training = neuron_network.fit_normalization(data_for_training)
         neuron_network.train(data_for_training, epochs=150, shuffle=True, learning_rate=inputLearningRate, jump=2,
                              given_error=0,
                              momentum=inputMomentum, is_last_column_class=True)
 
     if output_menu == 5:
         data_for_testing = np.genfromtxt(PATH_TEST_DATA, delimiter=',')
+        data_for_testing = neuron_network.normalize(data_for_testing)
         neuron_network.test(data_for_testing, True)
     if output_menu == 6:
         network_structure = [4, 2, 4]

@@ -5,6 +5,7 @@ from file_service import save, load
 from paths import PATH_TEST_DATA, PATH_TRAIN_DATA, PATH_SAVED, PATH_ASOCJACJA
 
 # GLOBAL
+EFFECTIVE_STEP_LIMIT = 10.0
 neuron_network = None
 network_structure = [4, 10, 10, 3]
 use_bias = True
@@ -40,6 +41,26 @@ def ask_float(prompt):
             return float(ask_text(prompt))
         except ValueError:
             print("Podaj liczbe.")
+
+
+def confirm_effective_step(learning_rate, momentum):
+    """Ostrzega, gdy lr/(1-momentum) wchodzi w zakres, w ktorym uczenie sie rozpada.
+
+    Przy momentum kolejne poprawki sumuja sie geometrycznie, wiec realna dlugosc
+    kroku to lr/(1-momentum), a nie samo learning_rate. Pomiary na tym projekcie
+    (8 seedow, 150 epok, irysy po normalizacji): krok 9 -> 98.75%, krok 11.25 ->
+    92.50%, krok 12.86 -> 72.08%. Stad prog 10.
+    """
+    effective = learning_rate / (1 - momentum)
+    if effective <= EFFECTIVE_STEP_LIMIT:
+        return True
+    print(f"\nUwaga: krok efektywny lr/(1-momentum) = {effective:.2f}, "
+          f"czyli powyzej bezpiecznego {EFFECTIVE_STEP_LIMIT:.0f}.")
+    print("Przy momentum kolejne poprawki sumuja sie geometrycznie, wiec realna")
+    print("dlugosc kroku to lr/(1-momentum), a nie samo learning_rate.")
+    print(f"Zejscie do granicy {EFFECTIVE_STEP_LIMIT:.0f} wymaga przy momentum={momentum} "
+          f"wartosci learning_rate={EFFECTIVE_STEP_LIMIT * (1 - momentum):.3f} lub mniejszej.")
+    return ask_text("Kontynuowac mimo to? [t/n]: ").strip().lower() in ("t", "tak")
 
 
 def prepare_network(existing_network, structure, bias):
@@ -115,6 +136,8 @@ while True:
         if (not (1 > inputMomentum >= 0)) or (not (1 > inputLearningRate > 0)):
             print("Podano błędne wartości")
             continue
+        if not confirm_effective_step(inputLearningRate, inputMomentum):
+            continue
         data_for_training = np.genfromtxt(PATH_TRAIN_DATA, delimiter=',')
         neuron_network = prepare_network(neuron_network, network_structure, use_bias)
         data_for_training = neuron_network.fit_normalization(data_for_training)
@@ -135,6 +158,8 @@ while True:
         inputMomentum = ask_float("Podaj wartosc momentum: ")
         if (not (1 > inputMomentum >= 0)) or (not (1 > inputLearningRate > 0)):
             print("Podano błędne wartości")
+            continue
+        if not confirm_effective_step(inputLearningRate, inputMomentum):
             continue
         data_for_training = np.genfromtxt(PATH_ASOCJACJA, delimiter=',')
         neuron_network = prepare_network(neuron_network, network_structure, use_bias)

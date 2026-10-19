@@ -225,6 +225,30 @@ class Network:
         plt.ylabel("Wartosc bledu")
         plt.show()
 
+    @staticmethod
+    def comparison_table(rows, nr_of_outputs):
+        """Buduje tabelke porownujaca wyjscia neuronow z wartosciami wzorcowymi.
+
+        rows: lista krotek (nr, wyjscia, wzorzec, blad, klasa_przewidziana, klasa_wzorcowa)
+        """
+
+        def fmt_target(value):
+            return f"{value:>7.0f}" if float(value).is_integer() else f"{value:>7.3f}"
+
+        outputs_header = "".join(f"{'y' + str(i + 1):>9}" for i in range(nr_of_outputs))
+        targets_header = "".join(f"{'t' + str(i + 1):>7}" for i in range(nr_of_outputs))
+        header = (f"{'nr':>4} |{outputs_header} |{targets_header} | {'blad':>9} |"
+                  f" {'pred':>4} | {'wzor':>4} | wynik")
+        lines = ["", "Porownanie wyjsc sieci (y) z wzorcem (t)", header, "-" * len(header)]
+        for nr, outputs, targets, error, predicted, expected in rows:
+            outputs_text = "".join(f"{value:>9.5f}" for value in outputs)
+            targets_text = "".join(fmt_target(value) for value in targets)
+            verdict = "OK" if predicted == expected else "BLAD"
+            lines.append(f"{nr:>4} |{outputs_text} |{targets_text} | {error:>9.5f} |"
+                         f" {predicted:>4} | {expected:>4} | {verdict}")
+        lines.append("-" * len(header))
+        return "\n".join(lines)
+
     def test(self, test_data, is_last_column_class):
         stats_logger.info("\n\n\nTestowanie\n\n")
         nr_of_outputs = self.neurons_in_particular_layers[-1]
@@ -242,6 +266,7 @@ class Network:
 
         correctly_guessed = 0
         incorrectly_guessed = 0
+        comparison_rows = []
         confusion_matrix = np.zeros((nr_of_outputs, nr_of_outputs))
         for i, sample in enumerate(test_data):
             target = sample[self.input_num:]
@@ -253,7 +278,13 @@ class Network:
             error = mean_squared_error(target, self.activations[-1])
             stats_logger.info(
                 f"activations: {['{:.5f}'.format(a) for a in output]}, target: {target}, error: {'{:.5f}'.format(error)}")
+            comparison_rows.append((i + 1, np.array(output, dtype=float), np.array(target, dtype=float),
+                                    error, int(predicted_class), target_class))
             confusion_matrix[target_class, predicted_class] += 1
+
+        table = self.comparison_table(comparison_rows, nr_of_outputs)
+        print(table)
+        effects_logger.info(table)
         confusion_string = ""
         for i in range(nr_of_outputs):
             confusion_string += f"class: {i}\n"

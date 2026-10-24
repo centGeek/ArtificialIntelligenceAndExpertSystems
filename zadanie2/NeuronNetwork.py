@@ -4,8 +4,7 @@ import numpy as np
 from functions import sigmoid_derivative, mean_squared_error, mean_squared_error_derivative
 from layer import Layer
 import matplotlib.pyplot as plt
-from paths import PATH_TEST_LOGGING, PATH_STATS, PATH_TRAIN_EFFECTS
-import pandas as pd
+from paths import PATH_STATS, PATH_TRAIN_EFFECTS
 import logging
 import os
 
@@ -82,6 +81,15 @@ class Network:
         self.feature_std = data[:, :self.input_num].std(axis=0)
         self.feature_std[self.feature_std == 0] = 1.0  # cecha stala - nie dziel przez zero
         return self.normalize(data)
+
+    def disable_normalization(self):
+        """Kasuje zapamietane statystyki cech.
+
+        Bez tego siec uczona wczesniej na skalowanym zbiorze dalej skalowalaby
+        nowy zbior srednia i odchyleniem poprzedniego.
+        """
+        self.feature_mean = None
+        self.feature_std = None
 
     def normalize(self, data):
         """Skaluje cechy wedlug zapamietanych statystyk (z-score).
@@ -163,22 +171,52 @@ class Network:
         for x in range(len(self.layer_list)):
             self.layer_list[x].update_biases(self.biases[x])
 
+    def prepare_samples(self, data, is_last_column_class):
+        """Sprowadza dane do postaci [wejscia | wzorzec] i sprawdza zgodnosc wymiarow.
+
+        Wczesniej train() i test() robily to osobno, mieszajac dwa sposoby
+        indeksowania: cechy brane jako row[:-1], a numer klasy jako
+        row[self.input_num]. Dla irysow obie formuly wskazuja te sama kolumne,
+        ale dla dowolnego innego zbioru sie rozjezdzaja i uczenie konczylo sie
+        nieobsluzonym bledem broadcastingu. Teraz indeksowanie jest jedno,
+        a niezgodnosc ksztaltu daje czytelny komunikat przed uczeniem.
+        """
+        data = np.atleast_2d(np.asarray(data, dtype=float))
+        num_outputs = self.neurons_in_particular_layers[-1]
+
+        if not is_last_column_class:
+            expected = self.input_num + num_outputs
+            if data.shape[1] != expected:
+                raise ValueError(
+                    f"Siec ma {self.input_num} wejsc i {num_outputs} wyjsc, wiec zbior "
+                    f"powinien miec {expected} kolumn, a ma {data.shape[1]}.")
+            return data.copy()
+
+        expected = self.input_num + 1
+        if data.shape[1] != expected:
+            raise ValueError(
+                f"Siec ma {self.input_num} wejsc, wiec zbior klasyfikacyjny powinien miec "
+                f"{expected} kolumn ({self.input_num} cech + kolumna klasy), "
+                f"a ma {data.shape[1]}.")
+
+        prepared = np.zeros((len(data), self.input_num + num_outputs))
+        prepared[:, :self.input_num] = data[:, :self.input_num]
+        for i, label in enumerate(data[:, self.input_num]):
+            if label != int(label) or not 0 <= int(label) < num_outputs:
+                raise ValueError(
+                    f"Wiersz {i + 1}: numer klasy {label} jest poza zakresem "
+                    f"0..{num_outputs - 1}, bo warstwa wyjsciowa ma {num_outputs} neuronow.")
+            prepared[i, self.input_num + int(label)] = 1.0
+        return prepared
+
     def train(self, input_data, epochs, shuffle, learning_rate, jump, given_error, momentum, is_last_column_class):
         mistakes = []
         x_values = []
         avg_error = None
         reached_given_error = False
-        num_of_outputs = len(self.activations[-1])
-        if is_last_column_class:
-            combined = []
-            for row in input_data:
-                left = row[:-1]
-                one_hot = np.zeros(num_of_outputs)
-                g = int(row[self.input_num])
-                one_hot[g] = 1
-                right = one_hot
-                combined.append(np.hstack((left, right)))
-            input_data = combined
+        # prepare_samples zwraca wlasna kopie, wiec shuffle ponizej nie miesza
+        # tablicy nalezacej do wywolujacego
+        input_data = self.prepare_samples(input_data, is_last_column_class)
         for i in range(epochs):
             if shuffle:
                 np.random.shuffle(input_data)
@@ -218,7 +256,10 @@ class Network:
         # przebiegi na te same osie i wykresy z roznych uczen sie nakladaly
         plt.figure()
         plt.plot(x_values, mistakes)
-        plt.ylim(0, 0.3)
+        # zakres osi Y z faktycznych bledow - zaszyte 0.3 bylo dobrane pod irysy
+        # i przy innym zbiorze ucinalo poczatek krzywej uczenia
+        top = max(mistakes) if mistakes else 0
+        plt.ylim(0, top * 1.05 if top > 0 else 1.0)
         plt.axhline(y=0, color='r', linestyle='-')
         plt.title("Zalezność bledu od ilości epok")
         plt.xlabel("Liczba epok")
@@ -226,7 +267,7 @@ class Network:
         plt.show()
 
     @staticmethod
-    def comparison_table(rows, nr_of_outputs):
+    def comparison_table(rows, nr_of_outputs, limit=None):
         """Buduje tabelke porownujaca wyjscia neuronow z wartosciami wzorcowymi.
 
         rows: lista krotek (nr, wyjscia, wzorzec, blad, klasa_przewidziana, klasa_wzorcowa)
@@ -240,29 +281,23 @@ class Network:
         header = (f"{'nr':>4} |{outputs_header} |{targets_header} | {'blad':>9} |"
                   f" {'pred':>4} | {'wzor':>4} | wynik")
         lines = ["", "Porownanie wyjsc sieci (y) z wzorcem (t)", header, "-" * len(header)]
-        for nr, outputs, targets, error, predicted, expected in rows:
+        shown = rows if limit is None else rows[:limit]
+        for nr, outputs, targets, error, predicted, expected in shown:
             outputs_text = "".join(f"{value:>9.5f}" for value in outputs)
             targets_text = "".join(fmt_target(value) for value in targets)
             verdict = "OK" if predicted == expected else "BLAD"
             lines.append(f"{nr:>4} |{outputs_text} |{targets_text} | {error:>9.5f} |"
                          f" {predicted:>4} | {expected:>4} | {verdict}")
         lines.append("-" * len(header))
+        if limit is not None and len(rows) > limit:
+            lines.append(f"... pominieto {len(rows) - limit} wierszy "
+                         f"(pelna tabela jest w pliku z wynikami)")
         return "\n".join(lines)
 
-    def test(self, test_data, is_last_column_class):
+    def test(self, test_data, is_last_column_class, print_limit=30):
         stats_logger.info("\n\n\nTestowanie\n\n")
         nr_of_outputs = self.neurons_in_particular_layers[-1]
-
-        if is_last_column_class:
-            combined = []
-            for row in test_data:
-                left = row[:-1]
-                one_hot = np.zeros(nr_of_outputs)
-                g = int(row[self.input_num])
-                one_hot[g] = 1
-                right = one_hot
-                combined.append(np.hstack((left, right)))
-            test_data = combined
+        test_data = self.prepare_samples(test_data, is_last_column_class)
 
         correctly_guessed = 0
         incorrectly_guessed = 0
@@ -282,9 +317,8 @@ class Network:
                                     error, int(predicted_class), target_class))
             confusion_matrix[target_class, predicted_class] += 1
 
-        table = self.comparison_table(comparison_rows, nr_of_outputs)
-        print(table)
-        effects_logger.info(table)
+        effects_logger.info(self.comparison_table(comparison_rows, nr_of_outputs))
+        print(self.comparison_table(comparison_rows, nr_of_outputs, limit=print_limit))
         confusion_string = ""
         for i in range(nr_of_outputs):
             confusion_string += f"class: {i}\n"
@@ -319,8 +353,9 @@ class Network:
             # stats_logger.info(confusion_string)
             correctly_guessed += tp
             incorrectly_guessed += fp
-        print(
-            f"Dobrze zakwalifikowano {round((correctly_guessed / (correctly_guessed + incorrectly_guessed) * 100), 5)} %")
+        classified = correctly_guessed + incorrectly_guessed
+        accuracy = correctly_guessed / classified * 100 if classified else 0.0
+        print(f"Dobrze zakwalifikowano {round(accuracy, 5)} % ({int(correctly_guessed)}/{int(classified)})")
         print(confusion_matrix)
         effects_logger.info(confusion_string)
         effects_logger.info(f"\n correctly classified: {correctly_guessed}\n")

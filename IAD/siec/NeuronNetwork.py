@@ -28,10 +28,14 @@ effects_logger = _create_logger("skutecznosc", PATH_TRAIN_EFFECTS)
 
 
 class Network:
-    def __init__(self, neurons_in_particular_layers: list, bias, activations=None):
+    def __init__(self, neurons_in_particular_layers: list, bias, activations=None,
+                 rng=None):
         """bias: wartosc wspolna albo lista per warstwa.
         activations: lista par (aktywacja, pochodna), domyslnie sigmoida.
+        rng: generator losowy numpy, wspolny dla wag startowych i mieszania
+        probek - pozwala powtarzac eksperymenty bez stanu globalnego.
         """
+        self.rng = rng if rng is not None else np.random.default_rng()
         self.num_layers = len(neurons_in_particular_layers)
         self.neurons_in_particular_layers = neurons_in_particular_layers
         self.input_num = neurons_in_particular_layers[0]
@@ -48,7 +52,8 @@ class Network:
         for i in range(1, self.num_layers):
             activation, derivative = activations[i - 1]
             self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[i],
-                                         self.layer_biases[i - 1], activation, derivative))
+                                         self.layer_biases[i - 1], activation, derivative,
+                                         self.rng))
             inputs_layer = neurons_in_particular_layers[i]
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
@@ -231,7 +236,7 @@ class Network:
         input_data = self.prepare_samples(input_data, is_last_column_class)
         for i in range(epochs):
             if shuffle:
-                np.random.shuffle(input_data)
+                self.rng.shuffle(input_data)
             sum_errors = 0
             for sample in input_data:
 

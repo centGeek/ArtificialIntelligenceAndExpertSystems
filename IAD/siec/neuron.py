@@ -3,11 +3,12 @@ from functions import sigmoid
 
 
 class Neuron:
-    def __init__(self, inputs_num: int, bias: bool):
+    def __init__(self, inputs_num: int, bias: bool, rng=None):
         self.neuron_inputs = None
-        self.weights = np.random.uniform(low=-1.0, high=1.0, size=inputs_num)
+        rng = rng if rng is not None else np.random.default_rng()
+        self.weights = rng.uniform(low=-1.0, high=1.0, size=inputs_num)
         if bias:
-            self.bias = np.random.uniform(low=-1.0, high=1.0)
+            self.bias = rng.uniform(low=-1.0, high=1.0)
         else:
             self.bias = 0
         self.output = 0

@@ -13,13 +13,8 @@ from functions import linear, linear_derivative, mean_squared_error_derivative
 
 def make_neuron(weight_num, rng=None):
     """Siec [N, 1] bez biasu z aktywacja liniowa - pojedynczy neuron liniowy."""
-    neuron = Network([weight_num, 1], bias=False,
-                     activations=[(linear, linear_derivative)])
-    rng = rng if rng is not None else np.random.default_rng()
-    # wagi z wlasnego generatora, bo Network losuje globalnym, a eksperymenty
-    # musza byc powtarzalne
-    neuron.layer_list[0].neurons[0].weights = rng.uniform(-1.0, 1.0, weight_num)
-    return neuron
+    return Network([weight_num, 1], bias=False,
+                   activations=[(linear, linear_derivative)], rng=rng)
 
 
 def weights(neuron):

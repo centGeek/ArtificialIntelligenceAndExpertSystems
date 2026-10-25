@@ -6,13 +6,13 @@ from functions import sigmoid, sigmoid_derivative
 
 class Layer:
     def __init__(self, input_num: int, neuron_num: int, bias: bool,
-                 activation=sigmoid, derivative=sigmoid_derivative):
+                 activation=sigmoid, derivative=sigmoid_derivative, rng=None):
         self.neuron_num = neuron_num
         self.input_num = input_num
         self.bias = bias
         self.activation = activation
         self.derivative = derivative
-        self.neurons = np.array([Neuron(input_num, bias) for _ in range(neuron_num)])
+        self.neurons = np.array([Neuron(input_num, bias, rng) for _ in range(neuron_num)])
         self.output = None
 
     def forward(self, inputs):

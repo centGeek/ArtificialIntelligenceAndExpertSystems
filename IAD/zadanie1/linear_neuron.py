@@ -6,7 +6,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                "..", "..", "zadanie2"))
+                                "..", "siec"))
 from NeuronNetwork import Network
 from functions import linear, linear_derivative, mean_squared_error_derivative
 

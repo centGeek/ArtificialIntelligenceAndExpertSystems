@@ -6,16 +6,25 @@ tak, jak wymaga tresc zadania.
 """
 
 import os
+import sys
 
 import numpy as np
 
 from linear_neuron import (expected_delta_rule_limit, least_squares_solution,
-                           make_neuron, safe_learning_rate, train, weights)
+                           make_neuron, train, weights)
 
 EPOCHS = 20000          # K z Algorytmu 3.2 - jedyne kryterium stopu
+LEARNING_RATE = 0.1     # eta dobrane eksperymentalnie, wspolne dla wszystkich przypadkow
 RUNS = 8
 SEED = 2024
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyniki")
+
+
+def progress(text):
+    """Postep idzie na stderr, zeby przekierowanie wynikow do pliku go nie polknelo."""
+    sys.stderr.write(text)
+    sys.stderr.flush()
+
 
 CASES = [("N < M", 3, 10, "uklad nadokreslony - wiecej rownan niz niewiadomych"),
          ("N = M", 5, 5, "uklad kwadratowy - tyle samo rownan co niewiadomych"),
@@ -26,12 +35,15 @@ def run_case(N, M, runs=RUNS, epochs=EPOCHS, seed=SEED):
     """Trenuje neuron wielokrotnie na jednym zbiorze i liczy miary porownawcze."""
     rng = np.random.default_rng(seed)
     X, t = rng.normal(0, 1, (M, N)), rng.normal(0, 1, M)
-    eta = safe_learning_rate(X)
+    eta = LEARNING_RATE
+    progress(f"  N={N:<3} M={M:<3} ziarno={seed:<6} {runs} x {epochs} epok ")
     results = []
     for i in range(runs):
         neuron = make_neuron(N, np.random.default_rng(seed + 1000 * (i + 1)))
         initial, errors = train(neuron, X, t, eta, epochs)
         results.append((weights(neuron).copy(), initial, errors))
+        progress(".")
+    progress(" gotowe\n")
     W = np.array([w for w, _, _ in results])
     ls = least_squares_solution(X, t)
     return dict(
@@ -67,36 +79,6 @@ def report(label, description, N, M, c):
     return "\n".join(lines)
 
 
-def eta_study(c, factors=(1, 0.5, 0.25, 0.125)):
-    """Regula przyrostowa przy stalym eta zatrzymuje sie w otoczeniu rozwiazania."""
-    rows = []
-    for f in factors:
-        eta = c["eta"] * f
-        neuron = make_neuron(c["X"].shape[1], np.random.default_rng(7))
-        _, errors = train(neuron, c["X"], c["t"], eta, EPOCHS)
-        rows.append((eta, float(np.abs(weights(neuron) - c["ls"]).max()), errors[-1]))
-    return rows
-
-
-def rank_deficient(runs=6, seed=1):
-    """N = M, ale macierz osobliwa - sprawdza, czy decyduje rzad X, a nie N vs M."""
-    rng = np.random.default_rng(seed)
-    base = rng.normal(0, 1, (3, 5))
-    X = np.vstack([base, base[0] + base[1], base[1] - base[2]])
-    t = X @ rng.normal(0, 1, 5)
-    eta = safe_learning_rate(X)
-    W = []
-    for i in range(runs):
-        neuron = make_neuron(5, np.random.default_rng(900 + i))
-        train(neuron, X, t, eta, EPOCHS)
-        W.append(weights(neuron).copy())
-    W = np.array(W)
-    return dict(rank=int(np.linalg.matrix_rank(X)),
-                spread=float((W.max(axis=0) - W.min(axis=0)).max()),
-                error=float(np.mean((X @ W[0] - t) ** 2)),
-                null=float(np.abs(X @ (W - W[0]).T).max()))
-
-
 def plots(cases):
     """Zbieznosc bledu i rozrzut wag. Bez matplotlib po prostu pomija."""
     try:
@@ -108,7 +90,9 @@ def plots(cases):
         return
     for name, title, kind in [("zbieznosc_bledu", "Zbieznosc bledu neuronu liniowego", "error"),
                               ("wagi_koncowe", "Wagi koncowe w kolejnych przebiegach", "weights")]:
-        fig, axes = plt.subplots(1, len(cases), figsize=(5 * len(cases), 4))
+        # panele pionowo, nie poziomo - trzy obok siebie sa nieczytelne po
+        # wstawieniu w sprawozdanie; proporcje dobrane do pola tekstu 390 pt
+        fig, axes = plt.subplots(len(cases), 1, figsize=(7.5, 2.6 * len(cases)))
         for ax, (label, N, M, _), c in zip(np.atleast_1d(axes), CASES, cases):
             if kind == "error":
                 for i, (_, _, e) in enumerate(c["results"], start=1):
@@ -125,7 +109,7 @@ def plots(cases):
                 ax.plot(pos, c["ls"], color="black", marker="s", ms=5, lw=2, ls="--", label="X^+ t")
                 ax.set_xlabel("numer wagi"); ax.set_ylabel("wartosc wagi"); ax.set_xticks(pos)
                 ax.set_title(f"{label}   rozrzut {c['spread']:.2e}")
-            ax.grid(True, which="both", alpha=0.3); ax.legend(fontsize=7)
+            ax.grid(True, which="both", alpha=0.3); ax.legend(fontsize=8)
         fig.suptitle(title); fig.tight_layout()
         fig.savefig(os.path.join(OUT, f"{name}.png"), dpi=130)
         plt.close(fig)
@@ -133,14 +117,13 @@ def plots(cases):
 
 
 if __name__ == "__main__":
+    progress(f"Eksperymenty: K={EPOCHS} epok, {RUNS} przebiegow na przypadek.\n"
+             f"Calosc to 114 treningow, ok. 2 minut na typowej maszynie.\n\n"
+             f"[1/2] trzy przypadki N vs M\n")
     cases = [run_case(N, M) for _, N, M, _ in CASES]
     text = "\n".join(report(l, d, N, M, c) for (l, N, M, d), c in zip(CASES, cases))
 
-    text += ("\n### Wplyw wspolczynnika uczenia (przypadek N < M)\n\n"
-             "| eta | odleglosc od X^+ t | blad MSE |\n|---|---|---|\n")
-    for eta, gap, err in eta_study(cases[0]):
-        text += f"| {eta:.5g} | {gap:.3e} | {err:.6f} |\n"
-
+    progress("\n\n[2/2] powtarzalnosc dla 5 ziaren - najdluzszy etap, ok. 1.5 minuty\n")
     text += ("\n### Powtarzalnosc dla roznych losowan zbioru\n\n| ziarno | "
              + " | ".join(f"{l} rozrzut / blad" for l, _, _, _ in CASES) + " |\n"
              + "|---|" + "---|" * len(CASES) + "\n")
@@ -148,14 +131,7 @@ if __name__ == "__main__":
         row = [run_case(N, M, runs=6, seed=seed) for _, N, M, _ in CASES]
         text += f"| {seed} | " + " | ".join(f"{c['spread']:.2e} / {c['error']:.2e}" for c in row) + " |\n"
 
-    d = rank_deficient()
-    text += (f"\n### Decyduje rzad macierzy X, nie porownanie N z M\n\n"
-             f"Macierz 5 x 5 (N = M) o liniowo zaleznych wierszach, rzad {d['rank']}, "
-             f"jadro wymiaru {5 - d['rank']}:\n\n"
-             f"- rozrzut wag: **{d['spread']:.3e}**\n- blad koncowy: {d['error']:.3e}\n"
-             f"- ||X (w_i - w_1)||: {d['null']:.3e}\n\n"
-             f"Mimo N = M wagi roznia sie miedzy przebiegami, a blad jest zerowy - "
-             f"zachowanie ukladu niedookreslonego.\n")
+        progress("\n")
 
     print(text)
     os.makedirs(OUT, exist_ok=True)

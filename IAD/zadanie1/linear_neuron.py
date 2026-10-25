@@ -37,13 +37,6 @@ def train(neuron, X, t, learning_rate, epochs):
     return initial, errors
 
 
-def safe_learning_rate(X, margin=0.1):
-    """Krok uczacy liczony z najwiekszej wartosci wlasnej X^T X - przy wiekszym
-    regula delta rozbiega sie i porownywanie wag traci sens."""
-    largest = np.linalg.eigvalsh(np.asarray(X, dtype=float).T @ np.asarray(X, dtype=float)).max()
-    return float(margin * 2.0 / largest) if largest > 0 else 0.01
-
-
 def least_squares_solution(X, t):
     """Rozwiazanie X w = t w sensie najmniejszych kwadratow."""
     return np.linalg.pinv(np.asarray(X, dtype=float)) @ np.asarray(t, dtype=float)

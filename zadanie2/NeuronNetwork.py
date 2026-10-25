@@ -1,7 +1,8 @@
 import copy
 
 import numpy as np
-from functions import sigmoid_derivative, mean_squared_error, mean_squared_error_derivative
+from functions import (sigmoid, sigmoid_derivative, mean_squared_error,
+                       mean_squared_error_derivative)
 from layer import Layer
 import matplotlib.pyplot as plt
 from paths import PATH_STATS, PATH_TRAIN_EFFECTS
@@ -27,7 +28,10 @@ effects_logger = _create_logger("skutecznosc", PATH_TRAIN_EFFECTS)
 
 
 class Network:
-    def __init__(self, neurons_in_particular_layers: list, bias):
+    def __init__(self, neurons_in_particular_layers: list, bias, activations=None):
+        """bias: wartosc wspolna albo lista per warstwa.
+        activations: lista par (aktywacja, pochodna), domyslnie sigmoida.
+        """
         self.num_layers = len(neurons_in_particular_layers)
         self.neurons_in_particular_layers = neurons_in_particular_layers
         self.input_num = neurons_in_particular_layers[0]
@@ -35,11 +39,17 @@ class Network:
         self.bias = bias
         inputs_layer = self.input_num
 
-        for i in range(1, self.num_layers - 1):
-            neuron_num_in_hidden_layer = neurons_in_particular_layers[i]
-            self.layer_list.append(Layer(inputs_layer, neuron_num_in_hidden_layer, bias))
-            inputs_layer = neuron_num_in_hidden_layer
-        self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[-1], bias))
+        layer_count = self.num_layers - 1
+        self.layer_biases = (list(bias) if isinstance(bias, (list, tuple))
+                             else [bias] * layer_count)
+        if activations is None:
+            activations = [(sigmoid, sigmoid_derivative)] * layer_count
+
+        for i in range(1, self.num_layers):
+            activation, derivative = activations[i - 1]
+            self.layer_list.append(Layer(inputs_layer, neurons_in_particular_layers[i],
+                                         self.layer_biases[i - 1], activation, derivative))
+            inputs_layer = neurons_in_particular_layers[i]
 
         derivatives = [np.zeros((self.input_num, self.layer_list[0].neuron_num))]
         derivatives.extend([np.zeros((layer.neuron_num, self.layer_list[i + 1].neuron_num)) for i, layer in
@@ -115,7 +125,7 @@ class Network:
     def back_propagation(self, error):
         for x in reversed(range(len(self.derivatives))):
             activation = self.activations[x + 1]
-            delta = error * sigmoid_derivative(activation)
+            delta = error * self.layer_list[x].derivative(activation)
             delta_resh = delta.reshape(delta.shape[0], -1).T
             curr_act = self.activations[x]
             curr_act_resh = curr_act.reshape(curr_act.shape[0], -1)
@@ -159,6 +169,8 @@ class Network:
 
     def update_biases(self, learning_rate):
         for i in range(len(self.biases)):
+            if not self.layer_biases[i]:
+                continue
             derivatives_biases = self.derivatives_biases[i]
             self.biases[i] -= derivatives_biases * learning_rate
         self.update_neurons_biases()
@@ -230,7 +242,7 @@ class Network:
 
                 self.update_weights(learning_rate, momentum)
 
-                if self.bias:
+                if any(self.layer_biases):
                     self.update_biases(learning_rate)
 
                 sum_errors += mean_squared_error(target, self.activations[-1])

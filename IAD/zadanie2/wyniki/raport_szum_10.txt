@@ -1,0 +1,3 @@
+letter a, noise level 10% -> letter a, noise level 0%, confidence: 0.522
+letter b, noise level 10% -> letter b, noise level 0%, confidence: 0.577
+letter c, noise level 10% -> letter c, noise level 0%, confidence: 0.489

@@ -14,6 +14,8 @@ import numpy as np
 from linear_neuron import (LinearNeuron, expected_delta_rule_limit,
                            least_squares_solution, safe_learning_rate)
 
+EPOCHS = 20000          # K z Algorytmu 3.2 - jedyne kryterium stopu
+
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wyniki")
 
 CASES = [
@@ -38,6 +40,10 @@ class CaseResult:
 
         self.final_weights = np.array([r.weights for r in runs])
         self.final_errors = np.array([r.final_error for r in runs])
+        if not np.all(np.isfinite(self.final_errors)):
+            raise RuntimeError(
+                f"Przypadek {label}: trening rozbiegl sie - wspolczynnik uczenia "
+                f"{learning_rate:.4g} jest za duzy.")
         self.rank = int(np.linalg.matrix_rank(X))
         self.least_squares = least_squares_solution(X, t)
         self.least_squares_error = float(np.mean((X @ self.least_squares - t) ** 2))
@@ -70,8 +76,8 @@ class CaseResult:
         return bool(self.final_errors.max() < 1e-8)
 
 
-def run_case(label, N, M, description, runs=8, max_epochs=200000,
-             target_error=1e-14, data_seed=2024, margin=0.1):
+def run_case(label, N, M, description, runs=8, epochs=EPOCHS,
+             data_seed=2024, margin=0.1):
     """Losuje jeden zbior treningowy i trenuje na nim neuron wiele razy."""
     data_rng = np.random.default_rng(data_seed)
     X = data_rng.normal(0.0, 1.0, (M, N))
@@ -81,8 +87,7 @@ def run_case(label, N, M, description, runs=8, max_epochs=200000,
     results = []
     for run in range(runs):
         neuron = LinearNeuron(N, np.random.default_rng(data_seed + 1000 * (run + 1)))
-        results.append(neuron.train(X, t, learning_rate,
-                                    max_epochs=max_epochs, target_error=target_error))
+        results.append(neuron.train(X, t, learning_rate, epochs))
     return CaseResult(label, N, M, description, X, t, learning_rate, results)
 
 
@@ -119,7 +124,6 @@ def case_report(case):
                  f"{case.limit_prediction_error:.3e}")
     lines.append(f"- ||X (w_i - w_1)||, czyli czy roznice leza w jadrze X: "
                  f"{case.difference_in_null_space:.3e}")
-    lines.append(f"- Powod zatrzymania treningu: {case.runs[0].stop_reason}")
     lines.append(f"- Skuteczny trening (neuron odtwarza wszystkie wzorce): "
                  f"**{'TAK' if case.effective_training else 'NIE'}**")
     lines.append("")
@@ -182,7 +186,7 @@ def make_plots(cases, output_dir):
     return written
 
 
-def eta_bias_study(case, factors=(1, 0.5, 0.25, 0.125), max_epochs=400000):
+def eta_bias_study(case, factors=(1, 0.5, 0.25, 0.125), epochs=EPOCHS):
     """Bada, jak wspolczynnik uczenia wplywa na odleglosc od rozwiazania dokladnego.
 
     Regula przyrostowa poprawia wagi po kazdym wzorcu z osobna, wiec przy stalym
@@ -193,8 +197,7 @@ def eta_bias_study(case, factors=(1, 0.5, 0.25, 0.125), max_epochs=400000):
     for factor in factors:
         learning_rate = case.learning_rate * factor
         neuron = LinearNeuron(case.N, np.random.default_rng(7))
-        result = neuron.train(case.X, case.t, learning_rate,
-                              max_epochs=max_epochs, target_error=1e-14)
+        result = neuron.train(case.X, case.t, learning_rate, epochs)
         gap = float(np.abs(result.weights - case.least_squares).max())
         rows.append((learning_rate, gap, result.final_error))
     return rows
@@ -234,9 +237,7 @@ def rank_deficient_study(runs=6, seed=1):
     final_weights = []
     for run in range(runs):
         neuron = LinearNeuron(N, np.random.default_rng(900 + run))
-        final_weights.append(
-            neuron.train(X, t, learning_rate, max_epochs=200000,
-                         target_error=1e-14).weights)
+        final_weights.append(neuron.train(X, t, learning_rate, EPOCHS).weights)
     final_weights = np.array(final_weights)
     rank = int(np.linalg.matrix_rank(X))
     return {
@@ -255,7 +256,8 @@ def main():
         description="Eksperymenty z neuronem liniowym dla N<M, N=M i N>M.")
     parser.add_argument("--runs", type=int, default=8,
                         help="liczba przebiegow treningu w kazdym przypadku")
-    parser.add_argument("--max-epochs", type=int, default=200000)
+    parser.add_argument("--epochs", type=int, default=EPOCHS,
+                        help="liczba epok K - jedyne kryterium stopu Algorytmu 3.2")
     parser.add_argument("--data-seed", type=int, default=2024,
                         help="ziarno losowania zbioru treningowego")
     parser.add_argument("--output-dir", default=OUTPUT_DIR)
@@ -265,7 +267,7 @@ def main():
     for label, N, M, description in CASES:
         print(f"Licze przypadek {label} (N={N}, M={M})...")
         cases.append(run_case(label, N, M, description, runs=arguments.runs,
-                              max_epochs=arguments.max_epochs,
+                              epochs=arguments.epochs,
                               data_seed=arguments.data_seed))
 
     sections = [case_report(case) for case in cases]

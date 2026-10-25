@@ -16,15 +16,12 @@ import numpy as np
 class TrainingResult:
     """Wynik jednego przebiegu treningu."""
 
-    def __init__(self, initial_weights, weights, errors, epochs, converged, learning_rate,
-                 stop_reason="limit epok"):
+    def __init__(self, initial_weights, weights, errors, epochs, learning_rate):
         self.initial_weights = initial_weights
         self.weights = weights
         self.errors = errors
         self.epochs = epochs
-        self.converged = converged
         self.learning_rate = learning_rate
-        self.stop_reason = stop_reason
 
     @property
     def final_error(self):
@@ -54,26 +51,37 @@ class LinearNeuron:
     def mse(self, X, t):
         return float(np.mean((self.outputs(X) - t) ** 2))
 
-    def train(self, X, t, learning_rate, max_epochs=10000, target_error=1e-12,
-              patience=200, stall_tolerance=1e-12):
-        """Algorytm 3.2 - przyrostowa regula delty na wielu wzorcach.
+    def train(self, X, t, learning_rate, epochs):
+        """Algorytm 3.2 - regula delta treningu neuronu liniowego dla wielu wzorcow.
 
-        Dla kazdej epoki przechodzi po wszystkich M wzorcach i po kazdym z nich
-        od razu poprawia wagi:
+        Wierna transkrypcja krokow 4-10 algorytmu:
 
-            y_j = w . x_j
-            w <- w + eta * (t_j - y_j) * x_j
+            4)  dopoki k < K
+            5)  mu = 1
+            6)  dopoki nie zaprezentowano wszystkich M wzorcow
+            7)  y = suma w_i * x_i^(mu)
+            8)  w_i = w_i + eta * (z^(mu) - y) * x_i^(mu),  i = 1..N
+            9)  mu = mu + 1, wroc do 6
+            10) k = k + 1, wroc do 4
 
-        Uczenie konczy sie, gdy blad sredniokwadratowy spadnie do target_error,
-        gdy przestanie sie poprawiac przez patience epok, albo po max_epochs
-        epokach. Wykrywanie stagnacji jest istotne dla przypadku N < M: tam uklad
-        nie ma rozwiazania dokladnego, wiec blad nigdy nie osiagnie progu i bez
-        tego warunku kazdy przebieg mielilby pelny limit epok bez zadnego zysku.
+        Algorytm nie ma zadnego kryterium stopu poza liczba epok: wykonuje
+        dokladnie K epok, nawet jesli blad dawno przestal spadac. Nie ma tu
+        progu bledu ani wykrywania stagnacji - to byloby odstepstwo od
+        specyfikacji.
 
-        Wazna wlasnosc, z ktorej korzystaja pozniej eksperymenty: kazda poprawka
-        jest wielokrotnoscia pewnego x_j, wiec caly przyrost wag w - w0 lezy w
-        przestrzeni wierszowej macierzy X. Skladowa wag lezaca w jadrze X nigdy
-        nie jest ruszana i zostaje taka, jaka byla w losowaniu startowym.
+        Blad sredniokwadratowy po kazdej epoce jest zapisywany, ale sluzy
+        wylacznie do oceny wynikow i rysowania wykresow. Na przebieg treningu
+        nie ma zadnego wplywu.
+
+        Wagi sa aktualizowane po kazdym wzorcu z osobna (krok 8 wykonuje sie
+        wewnatrz petli po wzorcach), a wszystkie N wag korzysta z tego samego
+        y policzonego w kroku 7.
+
+        Uwaga do kroku 6: w materialach warunek brzmi "czy mu = M", co czytane
+        doslownie konczy epoke przed przetworzeniem ostatniego wzorca. Przeczy
+        to wyjasnieniu podanemu w tym samym kroku ("czy wszystkie wzorce
+        zostaly zaprezentowane"), wiec przyjeto intencje: w kazdej epoce
+        przetwarzane sa wszystkie M wzorcow.
         """
         X = np.asarray(X, dtype=float)
         t = np.asarray(t, dtype=float)
@@ -84,40 +92,14 @@ class LinearNeuron:
             raise ValueError(f"{len(X)} wzorcow, ale {len(t)} wartosci oczekiwanych.")
 
         initial_weights = self.weights.copy()
-        errors = []
-        converged = False
-        stop_reason = "limit epok"
-        order = np.arange(len(X))
-        best_error = np.inf
-        epochs_without_progress = 0
-        epoch = 0
-        for epoch in range(1, max_epochs + 1):
-            for j in order:
-                x_j = X[j]
-                error_j = t[j] - self.forward(x_j)
-                self.weights = self.weights + learning_rate * error_j * x_j
-            current = self.mse(X, t)
-            errors.append(current)
-
-            if not np.isfinite(current):
-                stop_reason = "rozbieznosc - zbyt duzy wspolczynnik uczenia"
-                break
-            if current <= target_error:
-                converged = True
-                stop_reason = "osiagnieto zadany blad"
-                break
-            if current < best_error * (1.0 - stall_tolerance):
-                best_error = current
-                epochs_without_progress = 0
-            else:
-                best_error = min(best_error, current)
-                epochs_without_progress += 1
-                if epochs_without_progress >= patience:
-                    stop_reason = f"blad przestal spadac przez {patience} epok"
-                    break
+        errors = np.empty(epochs)
+        for k in range(epochs):                                  # krok 4
+            for mu in range(len(X)):                             # kroki 5, 6, 9
+                y = self.forward(X[mu])                          # krok 7
+                self.weights = self.weights + learning_rate * (t[mu] - y) * X[mu]   # krok 8
+            errors[k] = self.mse(X, t)                           # tylko pomiar
         return TrainingResult(initial_weights, self.weights.copy(),
-                              np.array(errors), epoch, converged, learning_rate,
-                              stop_reason)
+                              errors, epochs, learning_rate)
 
 
 def safe_learning_rate(X, margin=0.1):

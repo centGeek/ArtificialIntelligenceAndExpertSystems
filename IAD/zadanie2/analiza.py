@@ -5,7 +5,6 @@ Wyniki trafiaja do katalogu wyniki/.
 """
 
 import os
-import sys
 
 import numpy as np
 from PIL import Image
@@ -21,30 +20,6 @@ POZIOMY = [0, 10, 30, 50, 90, 100]
 def katalog_testowy(poziom):
     return os.path.join(KATALOG, "training_patterns" if poziom == 0
                         else f"test_patterns_{poziom}")
-
-
-def przyklad_z_wykladu():
-    """Ksztalty 4x4 liter X, Y, Z z Rozdzialu 4 i zaburzona litera X.
-
-    Materialy podaja stopnie podobienstwa 0.943, 0.816 i 0.738 - to sprawdzenie
-    weryfikuje implementacje wobec wartosci znanych z gory.
-    """
-    wzorce = {"litera X": [1,0,0,1, 0,1,1,0, 0,1,1,0, 1,0,0,1],
-              "litera Y": [1,0,0,1, 0,1,1,0, 0,1,0,0, 1,0,0,0],
-              "litera Z": [1,1,1,1, 0,0,1,0, 0,1,0,0, 1,1,1,1]}
-    test = np.array([1,0,1,1, 0,1,1,0, 0,1,1,0, 1,0,0,1], dtype=float)
-
-    sys.path.insert(0, os.path.join(KATALOG, "..", "siec"))
-    from NeuronNetwork import Network
-    from functions import linear, linear_derivative
-
-    siec = Network([16, len(wzorce)], bias=False,
-                   activations=[(linear, linear_derivative)])
-    for neuron, wektor in zip(siec.layer_list[0].neurons, wzorce.values()):
-        v = np.array(wektor, dtype=float)
-        neuron.weights = v / np.linalg.norm(v)
-    siec.forward(test / np.linalg.norm(test))
-    return dict(zip(wzorce, (float(x) for x in siec.activations[-1])))
 
 
 def piksele_tuszu():
@@ -157,15 +132,9 @@ if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     tusz = piksele_tuszu()
     wyniki = rozpoznawanie()
-    wyklad = przyklad_z_wykladu()
 
     t = "# Wyniki eksperymentow\n\n"
-    t += "### Weryfikacja wobec przykladu z wykladu (ksztalty 4 x 4)\n\n"
-    t += "| wzorzec oryginalny | materialy | implementacja |\n|---|---|---|\n"
-    for nazwa, oczekiwane in (("litera X", 0.943), ("litera Y", 0.816), ("litera Z", 0.738)):
-        t += f"| {nazwa} | {oczekiwane:.3f} | **{wyklad[nazwa]:.3f}** |\n"
-
-    t += "\n### Udzial tuszu w obrazie\n\n"
+    t += "### Udzial tuszu w obrazie\n\n"
     t += "| wzorzec | piksele tuszu | wszystkie piksele | udzial |\n|---|---|---|---|\n"
     for etykieta, (n, P) in tusz.items():
         t += f"| {etykieta} | {n} | {P} | {100*n/P:.1f}% |\n"

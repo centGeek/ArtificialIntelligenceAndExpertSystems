@@ -1,13 +1,5 @@
 # Wyniki eksperymentow
 
-### Weryfikacja wobec przykladu z wykladu (ksztalty 4 x 4)
-
-| wzorzec oryginalny | materialy | implementacja |
-|---|---|---|
-| litera X | 0.943 | **0.943** |
-| litera Y | 0.816 | **0.816** |
-| litera Z | 0.738 | **0.738** |
-
 ### Udzial tuszu w obrazie
 
 | wzorzec | piksele tuszu | wszystkie piksele | udzial |

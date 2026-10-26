@@ -13,7 +13,7 @@ import numpy as np
 from linear_neuron import (expected_delta_rule_limit, least_squares_solution,
                            make_neuron, train, weights)
 
-EPOCHS = 20000          # K z Algorytmu 3.2 - jedyne kryterium stopu
+EPOCHS = 5000           # K z Algorytmu 3.2 - jedyne kryterium stopu
 LEARNING_RATE = 0.1     # eta dobrane eksperymentalnie, wspolne dla wszystkich przypadkow
 RUNS = 8
 SEED = 2024

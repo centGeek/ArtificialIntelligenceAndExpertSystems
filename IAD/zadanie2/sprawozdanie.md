@@ -134,6 +134,8 @@ for L in a b c; do
 done
 # rozpoznawanie
 python madaline_ocr.py training_patterns test_patterns_30
+# to samo z wyjsciami wszystkich neuronow, nie tylko zwycieskiego
+python madaline_ocr.py -v training_patterns test_patterns_30
 ```
 
 Wymagane `numpy` i `pillow`.

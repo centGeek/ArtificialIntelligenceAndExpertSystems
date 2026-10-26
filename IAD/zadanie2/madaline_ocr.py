@@ -2,32 +2,43 @@
 
 Uzycie zgodne ze specyfikacja zadania projektowego:
 
-    madaline_ocr.py train_directory test_directory
+    madaline_ocr.py [-v] train_directory test_directory
 
 Oba katalogi musza zawierac pliki png ze znakami oraz plik description.txt
 wygenerowany przez font_generator.py. Ze znakow z train_directory budowana
 jest siec, a znaki z test_directory sa rozpoznawane.
+
+Z opcja -v pod kazdym wynikiem wypisywane sa wyjscia wszystkich neuronow,
+nie tylko zwycieskiego.
 """
 
 import sys
 
 from madaline import MadalineError, MadalineNetwork, image_to_vector, read_description
 
-USAGE = "Uzycie: madaline_ocr.py train_directory test_directory"
+USAGE = "Uzycie: madaline_ocr.py [-v] train_directory test_directory"
 
 
 def recognize_directory(train_directory, test_directory):
-    """Buduje siec ze wzorcow i zwraca liste wynikow rozpoznawania."""
+    """Buduje siec ze wzorcow i zwraca liste wynikow rozpoznawania.
+
+    Kazdy wynik to (etykieta, rozpoznane, pewnosc, wyjscia), gdzie 'wyjscia'
+    to pary (etykieta wzorca, wyjscie jego neuronu) dla wszystkich neuronow.
+    """
     network = MadalineNetwork.from_directory(train_directory)
     results = []
     for path, label in read_description(test_directory):
         vector, _ = image_to_vector(path)
         recognized, confidence = network.recognize(vector)
-        results.append((label, recognized, confidence))
+        outputs = [(name, float(value))
+                   for name, value in zip(network.labels, network.outputs(vector))]
+        results.append((label, recognized, confidence, outputs))
     return results
 
 
 def main(argv):
+    verbose = "-v" in argv
+    argv = [arg for arg in argv if arg != "-v"]
     if len(argv) != 2:
         print(USAGE)
         return 1
@@ -36,8 +47,11 @@ def main(argv):
     except MadalineError as error:
         print(f"Blad: {error}")
         return 1
-    for label, recognized, confidence in results:
+    for label, recognized, confidence, outputs in results:
         print(f"{label} -> {recognized}, confidence: {confidence:.3f}")
+        if verbose:
+            for name, value in outputs:
+                print(f"    {name}: {value:.3f}")
     return 0
 
 

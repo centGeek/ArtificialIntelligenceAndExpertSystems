@@ -105,13 +105,9 @@ Dla każdego z trzech przypadków:
 Pełne tabele wag z każdego przebiegu: `wyniki/wyniki.md`.
 Wykresy: `wyniki/zbieznosc_bledu.png`, `wyniki/wagi_koncowe.png`.
 
-Czarna przerywana linia na wykresie wag końcowych to wagi `X⁺t` wyliczone wzorem, bez treningu:
-
-- **N < M** — wagi o najmniejszym możliwym błędzie, czyli rozwiązanie najmniejszych kwadratów.
-  Wagi neuronu leżą tuż obok, różnica 0.044 wynika z obciążenia reguły przyrostowej.
-- **N = M** — jedyne rozwiązanie układu. Wagi wszystkich przebiegów pokrywają się z nim dokładnie.
-- **N > M** — rozwiązanie o najmniejszej długości wektora wag. Wagi przebiegów rozrzucają się
-  wokół niego, bo każdy przebieg zaczyna od innych wag losowych.
+Czarna przerywana linia na wykresie wag końcowych to najlepsze wagi `X⁺t`, wyliczone wzorem
+bez treningu. Dla *N < M* i *N = M* neuron dochodzi do nich (dla *N < M* prawie), a dla *N > M*
+każdy przebieg kończy się w innym miejscu wokół nich.
 
 ### Weryfikacja numeryczna przewidywań teoretycznych
 

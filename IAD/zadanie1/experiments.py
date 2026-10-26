@@ -74,8 +74,7 @@ def report(label, description, N, M, c):
               f"- blad koncowy: {c['error']:.3e}, granica najmniejszych kwadratow: {c['ls_error']:.6f}",
               f"- odleglosc od X^+ t: {c['to_ls']:.3e}",
               f"- odchylka od w0 + X^+(t - X w0): {c['to_limit']:.3e}",
-              f"- ||X (w_i - w_1)||: {c['null']:.3e}",
-              f"- skuteczny trening: **{'TAK' if c['error'] < 1e-8 else 'NIE'}**", ""]
+              f"- ||X (w_i - w_1)||: {c['null']:.3e}", ""]
     return "\n".join(lines)
 
 

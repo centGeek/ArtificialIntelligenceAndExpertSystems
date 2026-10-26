@@ -133,11 +133,6 @@ czworokąt wypukły, więc **każdy** z nich da się odciąć jakąś prostą �
 przez początek układu wystarczy tylko dla **dwóch** z nich (dla pozostałych prosta musiałaby
 przejść „pomiędzy", a przez zero tego nie zrobi). Stąd 2 poprawne wzorce zamiast 4.
 
-Drugi, bardziej obrazowy sposób: bez biasu zerowe wejście daje zerową sumę ważoną, a więc
-`f(0) = 0.5` na każdym wyjściu — sieć nie ma żadnego sposobu, by mieć jakiekolwiek „domyślne
-nastawienie". Bias jest właśnie tym nastawieniem: mówi neuronowi, jak bardzo ma być skłonny
-się wzbudzić, zanim jeszcze zobaczy jakiekolwiek wejście.
-
 ## 5. Uruchomienie
 
 ```bash

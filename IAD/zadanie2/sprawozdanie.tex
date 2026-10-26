@@ -66,44 +66,13 @@ w~jednym katalogu i~rozpoznaje znaki z~drugiego. Plik \texttt{description.txt}
 wiąże nazwy obrazów z~etykietami znaków. Użyliśmy liter \texttt{a}, \texttt{b}
 i~\texttt{c} w~kroju Times New Roman, na obrazach $128\times128$ pikseli.
 
-\subsection{Eksperyment nr 1: weryfikacja wobec przykładu z wykładu}
+\subsection{Eksperyment nr 1: rozpoznawanie znaków zaszumionych}
 
 \subsubsection{Założenia}
-Materiały do wykładu podają gotowe wyniki dla kształtów $4\times4$ liter
-X,~Y,~Z oraz zaburzonej litery~X. Można więc sprawdzić implementację na
-wartościach znanych z~góry, bez udziału generowanych obrazów.
-
-\subsubsection{Przebieg}
-Trzem neuronom przypisaliśmy znormalizowane kształty liter X,~Y i~Z. Na wejście
-podaliśmy zaburzoną literę~X, która różni się od wzorca jednym pikselem.
-
-\subsubsection{Rezultat}
-Porównanie zawiera Tab.~\ref{tab:wyklad}.
-
-\begin{table}[h]
-\centering
-\caption{Stopnie podobieństwa dla kształtów $4\times4$ z~materiałów wykładowych}
-\label{tab:wyklad}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Wzorzec oryginalny} & \textbf{Materiały} & \textbf{Implementacja} \\
-\midrule
-litera X & 0,943 & 0,943 \\
-litera Y & 0,816 & 0,816 \\
-litera Z & 0,738 & 0,738 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Wszystkie trzy wartości zgadzają się co do trzeciego miejsca po przecinku.
-Normalizacja wektorów i~liczenie podobieństwa działają więc poprawnie.
-
-\subsection{Eksperyment nr 2: rozpoznawanie znaków zaszumionych}
-
-\subsubsection{Założenia}
-Wzorce wygenerowaliśmy bez szumu, a~znaki testowe przy pięciu poziomach: $0$,
-$10$, $30$, $50$ i~$90\%$. Poziom to prawdopodobieństwo odwrócenia jednego
-piksela. Szum dotyczy zarówno tuszu, jak i~tła.
+Wzorce wygenerowaliśmy bez szumu, a~znaki testowe przy sześciu poziomach: $0$,
+$10$, $30$, $50$, $90$ i~$100\%$. Poziom to prawdopodobieństwo odwrócenia jednego
+piksela. Szum dotyczy zarówno tuszu, jak i~tła. Przy $100\%$ odwrócone są wszystkie
+piksele, więc znak testowy jest negatywem wzorca: biała litera na czarnym tle.
 
 \subsubsection{Przebieg}
 Sieć zbudowaliśmy ze wzorców bez szumu. Potem rozpoznawaliśmy kolejne zestawy
@@ -134,19 +103,25 @@ Wyniki zestawiono w~Tab.~\ref{tab:szum}; wytłuszczono wskazania błędne.
 30\% & a (0,264)          & b (0,303)          & c (0,244)          & 3/3 \\
 50\% & \textbf{b} (0,170) & b (0,174)          & \textbf{b} (0,167) & 1/3 \\
 90\% & \textbf{b} (0,170) & \textbf{a} (0,128) & \textbf{b} (0,153) & 0/3 \\
+100\% & \textbf{b} (0,170) & \textbf{a} (0,126) & \textbf{b} (0,151) & 0/3 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Do $30\%$ zaszumienia sieć nie myli się ani razu. Przy $50\%$ rozpoznaje
-poprawnie jeden znak na trzy, a~przy $90\%$ żadnego. Uwagę zwraca szybki spadek
+poprawnie jeden znak na trzy, a~przy $90\%$ i~$100\%$ żadnego. Uwagę zwraca szybki spadek
 podobieństwa: przy $10\%$ szumu wynosi ono już tylko około $0{,}5$, choć
 człowiek nadal czyta literę bez trudu, co widać na Rys.~\ref{fig:wzorce}.
 
 Przy $50\%$ i~$90\%$ sieć wskazuje niemal zawsze literę \texttt{b}, bez względu
 na to, co jest na obrazie.
 
-\subsection{Eksperyment nr 3: przyczyna spadku stopnia podobieństwa}
+Negatyw ($100\%$) człowiek czyta bez trudu, a~sieć myli się na wszystkich trzech
+znakach. Sieć porównuje piksele tuszu, a~w~negatywie tuszem jest dawne tło. Negatyw
+nie ma więc z~własnym wzorcem ani jednego wspólnego piksela tuszu i~neuron właściwej
+litery daje dokładnie $0$. Wygrywa zawsze wzorzec innej litery.
+
+\subsection{Eksperyment nr 2: przyczyna spadku stopnia podobieństwa}
 
 \subsubsection{Założenia}
 Chcieliśmy ustalić dwie rzeczy. Po pierwsze, czy szybki spadek podobieństwa to
@@ -186,16 +161,16 @@ litera c & 609 & 16384 & 3,7\% \\
 \small
 \begin{tabular}{lcccccc}
 \toprule
- & \multicolumn{5}{c}{\textbf{Poziom zaszumienia}} \\
-\cmidrule(l){2-6}
-\textbf{Wzorzec} & 0\% & 10\% & 30\% & 50\% & 90\% \\
+ & \multicolumn{6}{c}{\textbf{Poziom zaszumienia}} \\
+\cmidrule(l){2-7}
+\textbf{Wzorzec} & 0\% & 10\% & 30\% & 50\% & 90\% & 100\% \\
 \midrule
-litera a, pomiar & 1,000 & 0,522 & 0,264 & 0,138 & 0,026 \\
-litera a, model  & 1,000 & 0,524 & 0,267 & 0,152 & 0,023 \\[1mm]
-litera b, pomiar & 1,000 & 0,577 & 0,303 & 0,174 & 0,027 \\
-litera b, model  & 1,000 & 0,576 & 0,303 & 0,175 & 0,027 \\[1mm]
-litera c, pomiar & 1,000 & 0,489 & 0,244 & 0,130 & 0,016 \\
-litera c, model  & 1,000 & 0,482 & 0,241 & 0,136 & 0,021 \\
+litera a, pomiar & 1,000 & 0,522 & 0,264 & 0,138 & 0,026 & 0,000 \\
+litera a, model  & 1,000 & 0,524 & 0,267 & 0,152 & 0,023 & 0,000 \\[1mm]
+litera b, pomiar & 1,000 & 0,577 & 0,303 & 0,174 & 0,027 & 0,000 \\
+litera b, model  & 1,000 & 0,576 & 0,303 & 0,175 & 0,027 & 0,000 \\[1mm]
+litera c, pomiar & 1,000 & 0,489 & 0,244 & 0,130 & 0,016 & 0,000 \\
+litera c, model  & 1,000 & 0,482 & 0,241 & 0,136 & 0,021 & 0,000 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -222,11 +197,10 @@ tego, co jest na obrazie.
 
 \section{Wnioski}
 
-\paragraph{Poprawność i~odporność na szum.} Dla kształtów $4\times4$
-z~materiałów wykładowych nasza implementacja zwraca te same wartości co do
-trzeciego miejsca po przecinku. Wzorce bez szumu rozpoznaje z~podobieństwem
+\paragraph{Poprawność i~odporność na szum.} Wzorce bez szumu sieć rozpoznaje z~podobieństwem
 równym dokładnie $1{,}000$. Rozpoznawanie jest bezbłędne do $30\%$ zaszumienia.
-Przy $50\%$ poprawny jest jeden znak na trzy, a~przy $90\%$ żaden.
+Przy $50\%$ poprawny jest jeden znak na trzy, a~przy $90\%$ i~$100\%$ żaden.
+Negatywu znaku sieć nie rozpoznaje wcale, choć dla człowieka jest on czytelny.
 
 \paragraph{Jak czytać stopień podobieństwa.} To nie jest prawdopodobieństwo,
 tylko cosinus kąta. Spadek do około $0{,}5$ przy $10\%$ szumu nie znaczy, że
@@ -238,7 +212,7 @@ do tła. W~praktyce znaczy to tyle, że obraz warto kadrować ciasno wokół zna
 
 \paragraph{Brak mechanizmu odrzucenia.} Sieć MADALINE zawsze wskazuje jakiegoś
 zwycięzcę, nawet gdy na wejściu nie ma żadnego znaku. Przy dużym szumie wskazuje
-po prostu wzorzec o~największej powierzchni, co pokazał eksperyment nr~3. Praktyczny system rozpoznawania znaków wymagałby progu odrzucenia opartego na
+po prostu wzorzec o~największej powierzchni, co pokazał eksperyment nr~2. Praktyczny system rozpoznawania znaków wymagałby progu odrzucenia opartego na
 stopniu podobieństwa. Dla badanego zestawu próg taki musi leżeć między $0{,}174$,
 czyli najwyższą wartością towarzyszącą wskazaniu błędnemu, a~$0{,}244$, czyli
 najniższą towarzyszącą wskazaniu poprawnemu; wartość $0{,}2$ oddziela te dwa

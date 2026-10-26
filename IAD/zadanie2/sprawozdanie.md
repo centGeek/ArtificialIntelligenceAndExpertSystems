@@ -35,15 +35,6 @@ iloczyn skalarny.
 
 ## 2. Weryfikacja poprawności
 
-**Przykład z wykładu.** Dla ręcznych kształtów 4×4 liter X, Y, Z i zaburzonej litery X
-implementacja daje wartości identyczne z podanymi w materiałach (Wykład 1, Rozdz. 4.4):
-
-| | materiały | implementacja |
-|---|---|---|
-| zaburzona X → litera X | 0.943 | **0.943** |
-| zaburzona X → litera Y | 0.816 | **0.816** |
-| zaburzona X → litera Z | 0.738 | **0.738** |
-
 **Test poprawności dla szumu 0%** (punkt 3 specyfikacji) — wzorce testowane na samych sobie:
 
 ```
@@ -117,8 +108,7 @@ pewności (0.13–0.18 wobec 1.000 dla wzorca czystego).
 
 ## 5. Wnioski
 
-1. Metoda działa poprawnie: wzorce czyste rozpoznawane są z pewnością dokładnie 1.000,
-   a wyniki dla kształtów 4×4 zgadzają się co do trzeciego miejsca z materiałami.
+1. Metoda działa poprawnie: wzorce czyste rozpoznawane są z pewnością dokładnie 1.000.
 2. Odporność na szum sięga **30%** — do tego poziomu wszystkie znaki rozpoznawane są prawidłowo.
 3. Współczynnik pewności nie jest prawdopodobieństwem, lecz cosinusem kąta między wektorem
    wejściowym a wagowym. Jego spadek do ~0.5 przy zaledwie 10% szumu wynika z tego, że szum

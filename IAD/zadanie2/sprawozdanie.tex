@@ -66,39 +66,7 @@ w~jednym katalogu i~rozpoznaje znaki z~drugiego. Plik \texttt{description.txt}
 wiąże nazwy obrazów z~etykietami znaków. Użyliśmy liter \texttt{a}, \texttt{b}
 i~\texttt{c} w~kroju Times New Roman, na obrazach $128\times128$ pikseli.
 
-\subsection{Eksperyment nr 1: weryfikacja wobec przykładu z wykładu}
-
-\subsubsection{Założenia}
-Materiały do wykładu podają gotowe wyniki dla kształtów $4\times4$ liter
-X,~Y,~Z oraz zaburzonej litery~X. Można więc sprawdzić implementację na
-wartościach znanych z~góry, bez udziału generowanych obrazów.
-
-\subsubsection{Przebieg}
-Trzem neuronom przypisaliśmy znormalizowane kształty liter X,~Y i~Z. Na wejście
-podaliśmy zaburzoną literę~X, która różni się od wzorca jednym pikselem.
-
-\subsubsection{Rezultat}
-Porównanie zawiera Tab.~\ref{tab:wyklad}.
-
-\begin{table}[h]
-\centering
-\caption{Stopnie podobieństwa dla kształtów $4\times4$ z~materiałów wykładowych}
-\label{tab:wyklad}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Wzorzec oryginalny} & \textbf{Materiały} & \textbf{Implementacja} \\
-\midrule
-litera X & 0,943 & 0,943 \\
-litera Y & 0,816 & 0,816 \\
-litera Z & 0,738 & 0,738 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Wszystkie trzy wartości zgadzają się co do trzeciego miejsca po przecinku.
-Normalizacja wektorów i~liczenie podobieństwa działają więc poprawnie.
-
-\subsection{Eksperyment nr 2: rozpoznawanie znaków zaszumionych}
+\subsection{Eksperyment nr 1: rozpoznawanie znaków zaszumionych}
 
 \subsubsection{Założenia}
 Wzorce wygenerowaliśmy bez szumu, a~znaki testowe przy sześciu poziomach: $0$,
@@ -153,7 +121,7 @@ znakach. Sieć porównuje piksele tuszu, a~w~negatywie tuszem jest dawne tło. N
 nie ma więc z~własnym wzorcem ani jednego wspólnego piksela tuszu i~neuron właściwej
 litery daje dokładnie $0$. Wygrywa zawsze wzorzec innej litery.
 
-\subsection{Eksperyment nr 3: przyczyna spadku stopnia podobieństwa}
+\subsection{Eksperyment nr 2: przyczyna spadku stopnia podobieństwa}
 
 \subsubsection{Założenia}
 Chcieliśmy ustalić dwie rzeczy. Po pierwsze, czy szybki spadek podobieństwa to
@@ -229,9 +197,7 @@ tego, co jest na obrazie.
 
 \section{Wnioski}
 
-\paragraph{Poprawność i~odporność na szum.} Dla kształtów $4\times4$
-z~materiałów wykładowych nasza implementacja zwraca te same wartości co do
-trzeciego miejsca po przecinku. Wzorce bez szumu rozpoznaje z~podobieństwem
+\paragraph{Poprawność i~odporność na szum.} Wzorce bez szumu sieć rozpoznaje z~podobieństwem
 równym dokładnie $1{,}000$. Rozpoznawanie jest bezbłędne do $30\%$ zaszumienia.
 Przy $50\%$ poprawny jest jeden znak na trzy, a~przy $90\%$ i~$100\%$ żaden.
 Negatywu znaku sieć nie rozpoznaje wcale, choć dla człowieka jest on czytelny.
@@ -246,7 +212,7 @@ do tła. W~praktyce znaczy to tyle, że obraz warto kadrować ciasno wokół zna
 
 \paragraph{Brak mechanizmu odrzucenia.} Sieć MADALINE zawsze wskazuje jakiegoś
 zwycięzcę, nawet gdy na wejściu nie ma żadnego znaku. Przy dużym szumie wskazuje
-po prostu wzorzec o~największej powierzchni, co pokazał eksperyment nr~3. Praktyczny system rozpoznawania znaków wymagałby progu odrzucenia opartego na
+po prostu wzorzec o~największej powierzchni, co pokazał eksperyment nr~2. Praktyczny system rozpoznawania znaków wymagałby progu odrzucenia opartego na
 stopniu podobieństwa. Dla badanego zestawu próg taki musi leżeć między $0{,}174$,
 czyli najwyższą wartością towarzyszącą wskazaniu błędnemu, a~$0{,}244$, czyli
 najniższą towarzyszącą wskazaniu poprawnemu; wartość $0{,}2$ oddziela te dwa

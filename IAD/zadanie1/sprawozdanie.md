@@ -159,44 +159,19 @@ Tak, i są one skrajnie różne w trzech przypadkach:
 
 ## 5. Interpretacja
 
-Wszystko powyższe jest bezpośrednią konsekwencją tego, że trening neuronu liniowego to
-rozwiązywanie układu `X w = t` o *M* równaniach i *N* niewiadomych.
+Trening neuronu jest równoważny rozwiązywaniu układu `X w = t` o *M* równaniach i *N* niewiadomych.
 
-**N < M — układ nadokreślony.** Więcej równań niż niewiadomych. Przy losowym `t` układ jest
-sprzeczny, więc rozwiązanie dokładne **nie istnieje**. Algorytm minimalizuje błąd kwadratowy,
-a ten ma **dokładnie jedno** minimum (bo `X` ma pełny rząd kolumnowy, tu 3). Stąd identyczne wagi
-w każdym przebiegu i niezerowy błąd resztkowy. Mówiąc obrazowo: 3 wagi to za mało stopni swobody,
-żeby przejść przez 10 narzuconych warunków — neuron może jedynie znaleźć najlepszy kompromis,
-a ten kompromis jest jeden.
-
-**N = M — układ kwadratowy.** Tyle równań co niewiadomych. Macierz `X` jest nieosobliwa (rząd 5),
-więc istnieje **dokładnie jedno** rozwiązanie. Algorytm do niego zbiega niezależnie od startu —
-identyczne wagi i zerowy błąd. To jedyny przypadek, w którym trening jest i skuteczny, i
-jednoznaczny.
-
-**N > M — układ niedookreślony.** Mniej równań niż niewiadomych, rząd `X` wynosi 4, więc jądro
-`X` ma wymiar 10 − 4 = **6**. Rozwiązań dokładnych jest **nieskończenie wiele** i tworzą one
-6-wymiarową podprzestrzeń afiniczną. Algorytm zbiega do tego z nich, który jest najbliżej punktu
-startowego — bo, jak pokazano w sekcji 1, nie potrafi ruszyć składowej leżącej w jądrze `X`.
-Stąd: zerowy błąd w każdym przebiegu, ale za każdym razem inne wagi. Co ważne, **różnice nie są
-przypadkowe** — leżą dokładnie w jądrze `X` (potwierdzone numerycznie: 5.77e-15), czyli w
-kierunkach obojętnych dla zbioru treningowego.
-
-**Wniosek ogólny.** Jednoznaczność wag końcowych i skuteczność treningu to dwie **niezależne**
-własności, a decyduje o nich relacja między *N* a *M*:
-
-| | rozwiązanie dokładne istnieje | wagi jednoznaczne |
-|---|---|---|
-| N < M | nie | tak |
-| N = M | tak | tak |
-| N > M | tak | **nie** |
+- **N < M** — układ jest nadokreślony, ponieważ równań jest więcej niż niewiadomych.
+  Rozwiązanie dokładne nie istnieje, więc błąd nie spada do zera.
+- **N = M** — układ ma dokładnie jedno rozwiązanie, więc wagi końcowe są zawsze takie same.
+- **N > M** — układ jest niedookreślony, ponieważ równań jest mniej niż niewiadomych.
+  Rozwiązań jest nieskończenie wiele, więc każdy przebieg kończy się innymi wagami.
 
 ### Doprecyzowanie: decyduje rząd macierzy X, nie samo porównanie N z M
 
 Powyższy podział jest poprawny, ale warto zobaczyć, co jest jego prawdziwą przyczyną.
 Liczba wymiarów swobody, jakie zostają neuronowi po treningu, to wymiar jądra `X`, czyli
-`N − rank(X)`. Relacja *N* do *M* rządzi wynikiem tylko dlatego, że dla losowych macierzy
-`rank(X) = min(N, M)` zachodzi prawie na pewno.
+`N − rank(X)`.
 
 Sprawdzenie: macierz `X` o wymiarze 5 × 5 (a więc *N = M*), ale o liniowo zależnych wierszach,
 przez co `rank(X) = 3` i jądro ma wymiar 2:

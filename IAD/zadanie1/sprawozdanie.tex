@@ -308,18 +308,13 @@ skuteczny nie był możliwy, ponieważ błąd zatrzymał się na wartości $0{,}
 kwadratów równym $0{,}492861$, którego z~matematycznego punktu widzenia nie da się
 zmniejszyć.
 
-\paragraph{Interpretacja.} Wszystkie obserwacje są bezpośrednią konsekwencją
-równoważności treningu z~rozwiązywaniem układu~(1). Dla $N<M$ układ jest
-nadokreślony i~przy losowym $\mathbf{t}$ sprzeczny, więc rozwiązanie dokładne nie
-istnieje; minimalizowany błąd kwadratowy ma natomiast dokładnie jedno minimum, stąd
-powtarzalne wagi i~niezerowy błąd. Dla $N=M$ macierz jest nieosobliwa, rozwiązanie
-istnieje i~jest jedno. Dla $N>M$ układ jest niedookreślony, rozwiązań jest
-nieskończenie wiele i~tworzą one podprzestrzeń afiniczną wymiaru~$6$; algorytm zbiega
-do tego z~nich, które leży najbliżej punktu startowego, ponieważ zgodnie z~równaniem~(\ref{eq:granica}) nie jest w~stanie zmienić składowej wag należącej
-do jądra.
-
-Jednoznaczność wag i~skuteczność treningu są zatem własnościami niezależnymi:
-dla $N<M$ wagi są jednoznaczne, lecz trening nieskuteczny; dla $N>M$ jest odwrotnie.
+\paragraph{Interpretacja.} Trening neuronu jest równoważny rozwiązywaniu
+układu~(1) o~$M$ równaniach i~$N$ niewiadomych. Dla $N<M$ układ jest nadokreślony,
+ponieważ równań jest więcej niż niewiadomych. Rozwiązanie dokładne nie istnieje, więc
+błąd nie spada do zera. Dla $N=M$ układ ma dokładnie jedno rozwiązanie, więc wagi
+końcowe są zawsze takie same. Dla $N>M$ układ jest niedookreślony, ponieważ równań
+jest mniej niż niewiadomych. Rozwiązań jest nieskończenie wiele, więc każdy przebieg
+kończy się innymi wagami.
 
 \paragraph{Doprecyzowanie.} Z~równania~(\ref{eq:granica}) wynika, że o~wyniku
 decyduje nie samo porównanie $N$ z~$M$, lecz rząd macierzy $\mathbf{X}$: liczba
@@ -330,9 +325,7 @@ $N - \operatorname{rank}(\mathbf{X})$. Prawidłowość można więc sformułowa�
 \item $\operatorname{rank}(\mathbf{X}) < N$ oznacza nieskończenie wiele rozwiązań
       zależnych od punktu startowego,
 \item $\operatorname{rank}(\mathbf{X}) < M$ oznacza układ na ogół sprzeczny.
-\end{itemize} Dla losowych zbiorów treningowych zachodzi
-$\operatorname{rank}(\mathbf{X}) = \min(N,M)$ prawie na pewno i~właśnie dlatego
-badana relacja $N$ do $M$ rządzi wynikiem.
+\end{itemize}
 
 Z~praktycznego punktu widzenia najbardziej pouczający jest przypadek $N>M$: zerowy
 błąd na zbiorze treningowym nie oznacza, że model został wyznaczony. Pozostaje

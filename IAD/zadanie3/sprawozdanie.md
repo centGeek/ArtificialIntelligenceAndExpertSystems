@@ -72,6 +72,11 @@ choć oba powinny wynosić 0. To stąd bierze się cały błąd resztkowy.
 
 ### Czy to granica, czy wolna zbieżność?
 
+Sprawdziliśmy, czy wysoki błąd nie wynika ze zbyt krótkiego treningu albo ze źle dobranego kroku
+uczącego. Trening bez biasów powtórzyliśmy dla trzech wartości kroku uczącego (0.1, 0.5 i 2.0)
+i dla dwóch liczb epok (20000 i 50000), czyli dla sześciu kombinacji. Każdą uruchomiliśmy 5 razy
+od różnych wag startowych i zapisaliśmy najmniejszy uzyskany błąd:
+
 | krok uczący | epoki | najlepszy błąd |
 |---|---|---|
 | 0.1 | 20000 | 0.420717 |
@@ -121,12 +126,6 @@ wyżej — i nie spada mimo zwiększania liczby epok ani zmian kroku uczącego. 
 z czterech wzorców są odtwarzane poprawnie. W pozostałych dwóch sieć zapala wprawdzie właściwe
 wyjście, ale nie potrafi wygasić fałszywego — zostaje ono na poziomie 0.57–0.58, choć powinno
 wynosić 0.
-
-Warto odnotować jedno zastrzeżenie: gdyby za kryterium przyjąć samo wskazanie neuronu
-o najwyższym wyjściu („zwycięzca bierze wszystko"), sieć bez biasu przeszłaby ten test —
-maksimum wypada we właściwym miejscu we wszystkich czterech przypadkach. Ale trening minimalizuje
-`E = ½Σ(zᵢ − yᵢ)²`, a tej funkcji bez biasu zminimalizować się nie da. W sensie postawionego
-zadania trening jest nieskuteczny.
 
 ### Jaka jest rola wejść obciążających?
 

@@ -108,9 +108,12 @@ Ta sama architektura i~te same parametry, ale neurony wyjściowe pozbawione
 biasów. Liczba parametrów spada z~20 do~16.
 
 \subsubsection{Przebieg}
-Jak w~eksperymencie nr~1. Dodatkowo sprawdziliśmy, czy wynik nie bierze się
-z~niedouczenia, powtarzając trening dla trzech kroków uczących i~dwóch długości
-treningu.
+Jak w~eksperymencie nr~1. Dodatkowo sprawdziliśmy, czy wysoki błąd nie wynika
+ze zbyt krótkiego treningu albo ze źle dobranego kroku uczącego. Trening bez
+biasów powtórzyliśmy więc dla trzech wartości kroku uczącego ($0{,}1$; $0{,}5$
+i~$2{,}0$) i~dla dwóch liczb epok ($20000$ i~$50000$). Daje to sześć kombinacji.
+Każdą uruchomiliśmy 5 razy od różnych wag startowych i~zapisaliśmy najmniejszy
+uzyskany błąd. Wyniki zawiera Tab.~\ref{tab:krok}.
 
 \subsubsection{Rezultat}
 Błąd końcowy wyniósł od $0{,}384495$ do $0{,}444623$, a~więc ponad 3300 razy
@@ -237,12 +240,6 @@ treningu ani zmiany kroku uczącego. Dokładnie dwa z~czterech wzorców są
 odtwarzane poprawnie; w~pozostałych dwóch sieć zapala właściwe wyjście, ale nie
 potrafi wygasić fałszywego, które zostaje na poziomie $0{,}57$--$0{,}58$ zamiast
 zera.
-
-Jedno zastrzeżenie warto dodać. Gdyby za kryterium przyjąć samo wskazanie
-neuronu o~najwyższym wyjściu, sieć bez biasów przeszłaby ten test: maksimum
-wypada we właściwym miejscu we wszystkich czterech przypadkach. Trening
-minimalizuje jednak funkcję~(\ref{eq:blad}), a~tej bez biasów zminimalizować się
-nie da. W~sensie postawionego zadania trening jest więc nieskuteczny.
 
 \paragraph{Jaka jest rola wejść obciążających?} Bias daje granicy decyzyjnej
 \textbf{swobodę położenia}. Bez niego suma ważona wynosi $\mathbf{u}\cdot\mathbf{h}$, więc granica

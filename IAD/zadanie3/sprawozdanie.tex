@@ -181,33 +181,11 @@ płaszczyźnie. Chcieliśmy sprawdzić, ile z~czterech punktów da się oddzieli
 prostą od pozostałych trzech, osobno dla prostej dowolnej i~dla prostej
 przechodzącej przez początek układu.
 
-\subsubsection{Przebieg}
+\subsubsection{Przebieg i~rezultat}
 Dla najlepszego przebiegu każdego wariantu odczytaliśmy położenia czterech
 wzorców w~warstwie ukrytej oraz granice decyzyjne wyuczone przez neurony
 wyjściowe. Następnie policzyliśmy, ile punktów da się odciąć każdym z~dwóch
-rodzajów prostej.
-
-\subsubsection{Rezultat}
-Położenia wzorców zawiera Tab.~\ref{tab:ukryta}, a~obraz całości
-Rys.~\ref{fig:geometria}.
-
-\begin{table}[h]
-\centering
-\caption{Położenia wzorców w~warstwie ukrytej}
-\label{tab:ukryta}
-\begin{tabular}{ccccc}
-\toprule
- & \multicolumn{2}{c}{\textbf{z BIAS}} & \multicolumn{2}{c}{\textbf{bez BIAS}} \\
-\cmidrule(lr){2-3}\cmidrule(l){4-5}
-\textbf{Wzorzec} & $h_1$ & $h_2$ & $h_1$ & $h_2$ \\
-\midrule
-1 & $-$2,075 & $-$0,535 & $-$0,834 & $-$0,820 \\
-2 &    0,800 &    1,251 &   16,964 &   14,435 \\
-3 &    4,707 & $-$1,591 & $-$14,444 &  16,973 \\
-4 & $-$0,713 & $-$5,492 &    0,865 & $-$0,806 \\
-\bottomrule
-\end{tabular}
-\end{table}
+rodzajów prostej. Położenia wzorców i~granice przedstawia Rys.~\ref{fig:geometria}.
 
 \begin{figure}[htbp]
 \centering

@@ -43,7 +43,7 @@ Neuron liniowy to `Network([N, 1])` bez biasu, z aktywacją liniową — przy ta
 wzoru 3.2.2. Sprawdzone numerycznie: wagi końcowe zgadzają się **co do bitu** z wzorem
 rozpisanym wprost (różnica 0.00e+00). Nowy kod to tylko pętla epok i funkcje analityczne.
 
-Pliki: `linear_neuron.py`, `experiments.py`. Przyjęto `K = 20000`.
+Pliki: `linear_neuron.py`, `experiments.py`. Przyjęto `K = 5000`.
 
 ### Uwaga do kroku 6
 
@@ -89,9 +89,8 @@ Dla każdego z trzech przypadków:
 
 - zbiór treningowy (`X` i `t`) losowany jest **raz** i używany przez wszystkie przebiegi,
 - wagi początkowe losowane są **osobno dla każdego przebiegu** z rozkładu jednostajnego [−1, 1],
-- wykonano **8 przebiegów** treningu, każdy przez dokładnie `K = 20000` epok,
-- współczynnik uczenia dobierany jest automatycznie z danych jako `η = 0.2 / λmax(XᵀX)`,
-  bo przy zbyt dużym η reguła delty rozbiega i porównywanie wag traci sens,
+- wykonano **8 przebiegów** treningu, każdy przez dokładnie `K = 5000` epok,
+- współczynnik uczenia jest stały i wspólny dla wszystkich przypadków: `η = 0.1`,
 - `t` losowane jest **niezależnie** od `X`. To istotne: gdyby przyjąć `t = X w_prawdziwe`,
   układ byłby zgodny także dla *M > N* i najciekawszy przypadek by zniknął.
 
@@ -99,22 +98,26 @@ Dla każdego z trzech przypadków:
 
 | przypadek | N | M | rząd X | rozrzut wag między przebiegami | błąd końcowy | granica najmn. kwadratów | skuteczny trening |
 |---|---|---|---|---|---|---|---|
-| N < M | 3 | 10 | 3 | **4.72e-16** | 4.93e-01 | 0.4929 | **NIE** |
-| N = M | 5 | 5 | 5 | **6.79e-10** | 3.45e-20 | 0.0000 | **TAK** |
-| N > M | 10 | 4 | 4 | **2.28e+00** | 1.11e-29 | 0.0000 | **TAK** |
+| N < M | 3 | 10 | 3 | **5.55e-17** | 4.96e-01 | 0.4929 | **NIE** |
+| N = M | 5 | 5 | 5 | **0.00e+00** | 1.01e-29 | 0.0000 | **TAK** |
+| N > M | 10 | 4 | 4 | **2.28e+00** | 5.93e-32 | 0.0000 | **TAK** |
 
 Pełne tabele wag z każdego przebiegu: `wyniki/wyniki.md`.
 Wykresy: `wyniki/zbieznosc_bledu.png`, `wyniki/wagi_koncowe.png`.
+
+Czarna przerywana linia na wykresie wag końcowych to najlepsze wagi `X⁺t`, wyliczone wzorem
+bez treningu. Dla *N < M* i *N = M* neuron dochodzi do nich (dla *N < M* prawie), a dla *N > M*
+każdy przebieg kończy się w innym miejscu wokół nich.
 
 ### Weryfikacja numeryczna przewidywań teoretycznych
 
 | sprawdzenie | N < M | N = M | N > M |
 |---|---|---|---|
-| odchyłka od `w₀ + X⁺(t − X w₀)` | 5.42e-03 | 1.24e-09 | **1.09e-14** |
-| `‖X (wᵢ − w₁)‖` — czy różnice leżą w jądrze X | 1.12e-15 | 1.60e-10 | **5.77e-15** |
+| odchyłka od `w₀ + X⁺(t − X w₀)` | 4.40e-02 | 2.13e-14 | **2.44e-15** |
+| `‖X (wᵢ − w₁)‖` — czy różnice leżą w jądrze X | 8.64e-17 | 0.00e+00 | **6.11e-16** |
 
 Druga linijka jest najważniejsza dla przypadku *N > M*: wagi końcowe różnią się między
-przebiegami o **2.28**, ale po przemnożeniu tych różnic przez `X` otrzymujemy zero z dokładnością do 6e-15.
+przebiegami o **2.28**, ale po przemnożeniu tych różnic przez `X` otrzymujemy zero z dokładnością do 6e-16.
 Oznacza to, że przebiegi różnią się **wyłącznie** składową leżącą w jądrze `X` — czyli w
 kierunkach, których wzorce treningowe w ogóle nie widzą.
 
@@ -125,13 +128,13 @@ pięciu różnych ziaren losowania zbioru treningowego:
 
 | ziarno | N < M rozrzut / błąd | N = M rozrzut / błąd | N > M rozrzut / błąd |
 |---|---|---|---|
-| 2024 | 4.72e-16 / 4.93e-01 | 6.51e-10 / 3.30e-20 | 1.97e+00 / 1.11e-29 |
-| 7 | 5.00e-16 / 4.43e-01 | 3.34e-14 / 6.26e-29 | 1.90e+00 / 1.45e-30 |
-| 99 | 0.00e+00 / 8.20e-01 | 8.19e-13 / 2.05e-25 | 1.69e+00 / 2.16e-30 |
-| 12345 | 4.33e-15 / 6.45e-01 | 0.00e+00 / 3.20e-27 | 1.72e+00 / 1.39e-29 |
-| 555 | 4.44e-16 / 9.36e-01 | 0.00e+00 / 1.60e-28 | 1.97e+00 / 1.20e-30 |
+| 2024 | 5.55e-17 / 4.96e-01 | 0.00e+00 / 1.01e-29 | 1.97e+00 / 5.01e-32 |
+| 7 | 0.00e+00 / 4.60e-01 | 0.00e+00 / 6.58e-31 | 1.90e+00 / 3.45e-32 |
+| 99 | 0.00e+00 / 8.27e-01 | 1.27e-12 / 4.93e-25 | 1.69e+00 / 3.77e-32 |
+| 12345 | 4.44e-16 / 7.54e-01 | 0.00e+00 / 3.71e-29 | 1.72e+00 / 8.50e-32 |
+| 555 | 8.33e-17 / 9.95e-01 | 3.55e-15 / 4.97e-30 | 1.97e+00 / 2.77e-32 |
 
-Podział jest stabilny: dla *N < M* i *N = M* rozrzut nie przekracza 1e-12, czyli siedzi na
+Podział jest stabilny: dla *N < M* i *N = M* rozrzut nie przekracza 1.3e-12, czyli siedzi na
 poziomie precyzji arytmetyki zmiennoprzecinkowej, a dla *N > M* wynosi 1.7–2.0, czyli tyle, ile
 same wagi. To **kilkanaście rzędów wielkości** różnicy — wniosek nie zależy od konkretnego
 losowania.
@@ -142,61 +145,36 @@ losowania.
 
 Tak, i są one skrajnie różne w trzech przypadkach:
 
-- **N < M** — wagi końcowe są **nieodróżnialne** we wszystkich przebiegach (rozrzut 4.72e-16,
+- **N < M** — wagi końcowe są **nieodróżnialne** we wszystkich przebiegach (rozrzut 5.55e-17,
   czyli precyzja maszynowa, przy wagach rzędu 0.5). Punkt startowy nie ma żadnego znaczenia.
-- **N = M** — wagi końcowe są **nieodróżnialne** (rozrzut 6.79e-10) i równe dokładnemu
+- **N = M** — wagi końcowe są **nieodróżnialne** (rozrzut 0) i równe dokładnemu
   rozwiązaniu układu.
 - **N > M** — wagi końcowe są **różne w każdym przebiegu** (rozrzut 2.28, tego samego rzędu co
   same wagi). Każdy przebieg kończy w innym punkcie, ale wszystkie dają zerowy błąd.
 
 ### Czy skuteczny trening był możliwy?
 
-- **N < M — NIE.** Błąd końcowy 0.4929 i nie da się go zmniejszyć: to dokładnie błąd rozwiązania
-  najmniejszych kwadratów, czyli matematyczna dolna granica. Neuron nie jest w stanie odtworzyć
+- **N < M — NIE.** Błąd końcowy 0.4962, tuż nad granicą najmniejszych kwadratów 0.4929,
+  czyli matematyczną dolną granicą, poniżej której nie da się zejść. Neuron nie jest w stanie odtworzyć
   wszystkich 10 wzorców, mając tylko 3 wagi.
-- **N = M — TAK.** Błąd spada do 3.3e-20, neuron odtwarza wszystkie wzorce dokładnie.
-- **N > M — TAK.** Błąd spada do 1.1e-29. Trening jest skuteczny, ale rozwiązanie nie jest jedyne.
+- **N = M — TAK.** Błąd spada do 1.0e-29, neuron odtwarza wszystkie wzorce dokładnie.
+- **N > M — TAK.** Błąd spada do 5.9e-32. Trening jest skuteczny, ale rozwiązanie nie jest jedyne.
 
 ## 5. Interpretacja
 
-Wszystko powyższe jest bezpośrednią konsekwencją tego, że trening neuronu liniowego to
-rozwiązywanie układu `X w = t` o *M* równaniach i *N* niewiadomych.
+Trening neuronu jest równoważny rozwiązywaniu układu `X w = t` o *M* równaniach i *N* niewiadomych.
 
-**N < M — układ nadokreślony.** Więcej równań niż niewiadomych. Przy losowym `t` układ jest
-sprzeczny, więc rozwiązanie dokładne **nie istnieje**. Algorytm minimalizuje błąd kwadratowy,
-a ten ma **dokładnie jedno** minimum (bo `X` ma pełny rząd kolumnowy, tu 3). Stąd identyczne wagi
-w każdym przebiegu i niezerowy błąd resztkowy. Mówiąc obrazowo: 3 wagi to za mało stopni swobody,
-żeby przejść przez 10 narzuconych warunków — neuron może jedynie znaleźć najlepszy kompromis,
-a ten kompromis jest jeden.
-
-**N = M — układ kwadratowy.** Tyle równań co niewiadomych. Macierz `X` jest nieosobliwa (rząd 5),
-więc istnieje **dokładnie jedno** rozwiązanie. Algorytm do niego zbiega niezależnie od startu —
-identyczne wagi i zerowy błąd. To jedyny przypadek, w którym trening jest i skuteczny, i
-jednoznaczny.
-
-**N > M — układ niedookreślony.** Mniej równań niż niewiadomych, rząd `X` wynosi 4, więc jądro
-`X` ma wymiar 10 − 4 = **6**. Rozwiązań dokładnych jest **nieskończenie wiele** i tworzą one
-6-wymiarową podprzestrzeń afiniczną. Algorytm zbiega do tego z nich, który jest najbliżej punktu
-startowego — bo, jak pokazano w sekcji 1, nie potrafi ruszyć składowej leżącej w jądrze `X`.
-Stąd: zerowy błąd w każdym przebiegu, ale za każdym razem inne wagi. Co ważne, **różnice nie są
-przypadkowe** — leżą dokładnie w jądrze `X` (potwierdzone numerycznie: 5.77e-15), czyli w
-kierunkach obojętnych dla zbioru treningowego.
-
-**Wniosek ogólny.** Jednoznaczność wag końcowych i skuteczność treningu to dwie **niezależne**
-własności, a decyduje o nich relacja między *N* a *M*:
-
-| | rozwiązanie dokładne istnieje | wagi jednoznaczne |
-|---|---|---|
-| N < M | nie | tak |
-| N = M | tak | tak |
-| N > M | tak | **nie** |
+- **N < M** — układ jest nadokreślony, ponieważ równań jest więcej niż niewiadomych.
+  Rozwiązanie dokładne nie istnieje, więc błąd nie spada do zera.
+- **N = M** — układ ma dokładnie jedno rozwiązanie, więc wagi końcowe są zawsze takie same.
+- **N > M** — układ jest niedookreślony, ponieważ równań jest mniej niż niewiadomych.
+  Rozwiązań jest nieskończenie wiele, więc każdy przebieg kończy się innymi wagami.
 
 ### Doprecyzowanie: decyduje rząd macierzy X, nie samo porównanie N z M
 
 Powyższy podział jest poprawny, ale warto zobaczyć, co jest jego prawdziwą przyczyną.
 Liczba wymiarów swobody, jakie zostają neuronowi po treningu, to wymiar jądra `X`, czyli
-`N − rank(X)`. Relacja *N* do *M* rządzi wynikiem tylko dlatego, że dla losowych macierzy
-`rank(X) = min(N, M)` zachodzi prawie na pewno.
+`N − rank(X)`.
 
 Sprawdzenie: macierz `X` o wymiarze 5 × 5 (a więc *N = M*), ale o liniowo zależnych wierszach,
 przez co `rank(X) = 3` i jądro ma wymiar 2:
@@ -237,7 +215,7 @@ promieniu rzędu η. Pomiar dla przypadku *N < M*:
 Dwukrotne zmniejszenie η dwukrotnie zmniejsza odchyłkę, a błąd MSE dąży do granicy
 najmniejszych kwadratów 0.492861. Potwierdza to, że obciążenie jest rzędu O(η), a nie błędem
 implementacji. Nie zmienia to żadnego z wniosków z sekcji 5 — rozrzut wag między przebiegami
-(4.72e-16) jest o trzynaście rzędów wielkości mniejszy niż to obciążenie.
+(5.55e-17) jest o kilkanaście rzędów wielkości mniejszy niż to obciążenie.
 
 ## 7. Uruchomienie
 

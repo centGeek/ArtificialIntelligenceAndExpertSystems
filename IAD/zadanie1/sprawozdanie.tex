@@ -69,7 +69,7 @@ przewidzianej~(\ref{eq:granica}).
 \section{Eksperymenty i wyniki}
 
 We wszystkich eksperymentach stosowano przyrostową regułę delty: wagi poprawiano po
-każdym wzorcu, a~jedynym kryterium zatrzymania była liczba epok $K=20000$. Zbiór
+każdym wzorcu, a~jedynym kryterium zatrzymania była liczba epok $K=5000$. Zbiór
 treningowy losowano \emph{raz} dla danej konfiguracji, a~wagi początkowe
 \emph{osobno dla każdego przebiegu}, z~rozkładu jednostajnego na $[-1,1]$. Wartości
 $\mathbf{X}$ i~$\mathbf{t}$ pochodzą z~rozkładu $\mathcal{N}(0,1)$, przy czym
@@ -244,8 +244,12 @@ $\mathbf{X}^{+}\mathbf{t}$}
 
 Na Rys.~\ref{fig:zbieznosc} dla $N<M$ błąd osiada tuż nad granicą najmniejszych
 kwadratów (linia przerywana), a~w~pozostałych konfiguracjach opada o~kilkanaście
-rzędów wielkości. Na Rys.~\ref{fig:wagi} krzywe wag dla $N<M$ i~$N=M$ pokrywają się
-z~rozwiązaniem $\mathbf{X}^{+}\mathbf{t}$, a~dla $N>M$ wyraźnie się rozchodzą.
+rzędów wielkości.
+
+Czarna przerywana linia na Rys.~\ref{fig:wagi} to najlepsze wagi
+$\mathbf{X}^{+}\mathbf{t}$, wyliczone wzorem bez treningu. Dla $N<M$ i~$N=M$ neuron
+dochodzi do nich (dla $N<M$ prawie), a~dla $N>M$ każdy przebieg kończy się w~innym
+miejscu wokół nich.
 
 \subsection{Eksperyment nr 4: powtarzalność dla różnych losowań zbioru}
 
@@ -277,15 +281,15 @@ Wyniki zestawiono w~Tab.~\ref{tab:ziarna}.
 \midrule
 2024  & 5,55e$-$17 / 4,96e$-$01 & 0,00e$+$00 / 1,01e$-$29 & 1,97e$+$00 / 5,01e$-$32 \\
 7     & 0,00e$+$00 / 4,60e$-$01 & 0,00e$+$00 / 6,58e$-$31 & 1,90e$+$00 / 3,45e$-$32 \\
-99    & 0,00e$+$00 / 8,27e$-$01 & 0,00e$+$00 / 9,76e$-$28 & 1,69e$+$00 / 4,70e$-$32 \\
+99    & 0,00e$+$00 / 8,27e$-$01 & 1,27e$-$12 / 4,93e$-$25 & 1,69e$+$00 / 3,77e$-$32 \\
 12345 & 4,44e$-$16 / 7,54e$-$01 & 0,00e$+$00 / 3,71e$-$29 & 1,72e$+$00 / 8,50e$-$32 \\
-555   & 8,33e$-$17 / 9,95e$-$01 & 3,55e$-$15 / 4,97e$-$30 & 1,97e$+$00 / 1,54e$-$32 \\
+555   & 8,33e$-$17 / 9,95e$-$01 & 3,55e$-$15 / 4,97e$-$30 & 1,97e$+$00 / 2,77e$-$32 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Podział jest stabilny niezależnie od wylosowanego zbioru: dla $N<M$ i~$N=M$ rozrzut
-wag nie przekracza $4{,}4\cdot10^{-16}$, a~dla $N>M$ mieści się między $1{,}69$
+wag nie przekracza $1{,}3\cdot10^{-12}$, a~dla $N>M$ mieści się między $1{,}69$
 a~$1{,}97$, czyli jest tego samego rzędu co same wagi. Różnica kilkunastu rzędów
 wielkości wyklucza przypadkowość obserwacji. Błąd końcowy dla $N<M$ zmienia się ze
 zbiorem (od $0{,}46$ do $0{,}99$), bo zależy od stopnia sprzeczności układu, ale
@@ -308,18 +312,13 @@ skuteczny nie był możliwy, ponieważ błąd zatrzymał się na wartości $0{,}
 kwadratów równym $0{,}492861$, którego z~matematycznego punktu widzenia nie da się
 zmniejszyć.
 
-\paragraph{Interpretacja.} Wszystkie obserwacje są bezpośrednią konsekwencją
-równoważności treningu z~rozwiązywaniem układu~(1). Dla $N<M$ układ jest
-nadokreślony i~przy losowym $\mathbf{t}$ sprzeczny, więc rozwiązanie dokładne nie
-istnieje; minimalizowany błąd kwadratowy ma natomiast dokładnie jedno minimum, stąd
-powtarzalne wagi i~niezerowy błąd. Dla $N=M$ macierz jest nieosobliwa, rozwiązanie
-istnieje i~jest jedno. Dla $N>M$ układ jest niedookreślony, rozwiązań jest
-nieskończenie wiele i~tworzą one podprzestrzeń afiniczną wymiaru~$6$; algorytm zbiega
-do tego z~nich, które leży najbliżej punktu startowego, ponieważ zgodnie z~równaniem~(\ref{eq:granica}) nie jest w~stanie zmienić składowej wag należącej
-do jądra.
-
-Jednoznaczność wag i~skuteczność treningu są zatem własnościami niezależnymi:
-dla $N<M$ wagi są jednoznaczne, lecz trening nieskuteczny; dla $N>M$ jest odwrotnie.
+\paragraph{Interpretacja.} Trening neuronu jest równoważny rozwiązywaniu
+układu~(1) o~$M$ równaniach i~$N$ niewiadomych. Dla $N<M$ układ jest nadokreślony,
+ponieważ równań jest więcej niż niewiadomych. Rozwiązanie dokładne nie istnieje, więc
+błąd nie spada do zera. Dla $N=M$ układ ma dokładnie jedno rozwiązanie, więc wagi
+końcowe są zawsze takie same. Dla $N>M$ układ jest niedookreślony, ponieważ równań
+jest mniej niż niewiadomych. Rozwiązań jest nieskończenie wiele, więc każdy przebieg
+kończy się innymi wagami.
 
 \paragraph{Doprecyzowanie.} Z~równania~(\ref{eq:granica}) wynika, że o~wyniku
 decyduje nie samo porównanie $N$ z~$M$, lecz rząd macierzy $\mathbf{X}$: liczba
@@ -330,9 +329,7 @@ $N - \operatorname{rank}(\mathbf{X})$. Prawidłowość można więc sformułowa�
 \item $\operatorname{rank}(\mathbf{X}) < N$ oznacza nieskończenie wiele rozwiązań
       zależnych od punktu startowego,
 \item $\operatorname{rank}(\mathbf{X}) < M$ oznacza układ na ogół sprzeczny.
-\end{itemize} Dla losowych zbiorów treningowych zachodzi
-$\operatorname{rank}(\mathbf{X}) = \min(N,M)$ prawie na pewno i~właśnie dlatego
-badana relacja $N$ do $M$ rządzi wynikiem.
+\end{itemize}
 
 Z~praktycznego punktu widzenia najbardziej pouczający jest przypadek $N>M$: zerowy
 błąd na zbiorze treningowym nie oznacza, że model został wyznaczony. Pozostaje

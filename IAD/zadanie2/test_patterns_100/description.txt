@@ -1,0 +1,3 @@
+a.png:letter a, noise level 100%
+b.png:letter b, noise level 100%
+c.png:letter c, noise level 100%

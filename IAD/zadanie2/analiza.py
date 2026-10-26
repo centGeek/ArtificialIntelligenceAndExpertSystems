@@ -15,7 +15,7 @@ from madaline import (BINARY_THRESHOLD, MadalineNetwork, image_to_vector,
 
 KATALOG = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(KATALOG, "wyniki")
-POZIOMY = [0, 10, 30, 50, 90]
+POZIOMY = [0, 10, 30, 50, 90, 100]
 
 
 def katalog_testowy(poziom):
@@ -133,7 +133,7 @@ def wykres_pewnosci(wyniki, tusz):
         print("(matplotlib niedostepny - pomijam wykres pewnosci)")
         return
     fig, ax = plt.subplots(figsize=(7.5, 4.6))
-    siatka = np.linspace(0, 0.95, 200)
+    siatka = np.linspace(0, 1.0, 200)
     for idx, (etykieta, (n, P)) in enumerate(tusz.items()):
         litera = etykieta.split()[-1]
         kolor = f"C{idx}"

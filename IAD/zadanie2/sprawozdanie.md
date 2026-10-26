@@ -65,11 +65,17 @@ Wzorce: litery a, b, c, czcionka Times New Roman, obrazy 128×128, pozycja (28, 
 | 30% | a (0.264) | b (0.303) | c (0.244) | **3/3** |
 | 50% | **b** (0.170) | b (0.174) | **b** (0.167) | 1/3 |
 | 90% | **b** (0.170) | **a** (0.128) | **b** (0.153) | 0/3 |
+| 100% | **b** (0.170) | **a** (0.126) | **b** (0.151) | 0/3 |
 
 Pełne raporty w katalogu `wyniki/`.
 
 Rozpoznawanie działa bezbłędnie do 30% zaszumienia, przy 50% się załamuje, przy 90% jest
 całkowicie przypadkowe.
+
+Przy 100% odwrócone są wszystkie piksele, więc znak testowy jest **negatywem** wzorca: biała
+litera na czarnym tle. Człowiek czyta go bez trudu, a sieć myli się na wszystkich trzech znakach.
+Sieć porównuje piksele tuszu, a w negatywie tuszem jest dawne tło. Negatyw nie ma więc z własnym
+wzorcem ani jednego wspólnego piksela tuszu i neuron właściwej litery daje dokładnie 0.
 
 ## 4. Analiza
 
@@ -120,9 +126,10 @@ pewności (0.13–0.18 wobec 1.000 dla wzorca czystego).
 4. Skuteczność metody zależy więc nie tylko od poziomu szumu, ale też od **proporcji tuszu do
    tła**. Ten sam poziom zaszumienia zaszkodzi bardziej cienkiej literze na dużym tle niż
    grubej wypełniającej kadr.
-5. Przy całkowitym zaszumieniu sieć degeneruje się do stałego wskazywania wzorca o największej
+5. Przy bardzo dużym zaszumieniu sieć degeneruje się do stałego wskazywania wzorca o największej
    powierzchni. Praktyczny system OCR wymagałby progu odrzucenia opartego na współczynniku
    pewności.
+6. Negatywu znaku (100% szumu) sieć nie rozpoznaje wcale, choć dla człowieka jest on czytelny.
 
 ## 6. Uruchomienie
 

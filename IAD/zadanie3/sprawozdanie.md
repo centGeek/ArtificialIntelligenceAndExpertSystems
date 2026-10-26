@@ -95,15 +95,6 @@ Warstwa ukryta ma 2 neurony, więc każdy wzorzec staje się **punktem na płasz
 Neuron wyjściowy `i` musi dać wartość bliską 1 dla „swojego" punktu i bliską 0 dla pozostałych
 trzech, czyli jego granica decyzyjna musi **oddzielić jeden punkt od trzech**.
 
-Położenia wzorców w warstwie ukrytej (sieć z biasem):
-
-| wzorzec | h₁ | h₂ |
-|---|---|---|
-| 1 | −2.075 | −0.535 |
-| 2 | 0.800 | 1.251 |
-| 3 | 4.707 | −1.591 |
-| 4 | −0.713 | −5.492 |
-
 Sprawdzenie, ile punktów da się odciąć od pozostałych:
 
 | rodzaj prostej | odpowiada neuronowi | wynik |

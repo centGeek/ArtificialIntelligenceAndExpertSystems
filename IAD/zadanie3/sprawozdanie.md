@@ -72,6 +72,11 @@ choć oba powinny wynosić 0. To stąd bierze się cały błąd resztkowy.
 
 ### Czy to granica, czy wolna zbieżność?
 
+Sprawdziliśmy, czy wysoki błąd nie wynika ze zbyt krótkiego treningu albo ze źle dobranego kroku
+uczącego. Trening bez biasów powtórzyliśmy dla trzech wartości kroku uczącego (0.1, 0.5 i 2.0)
+i dla dwóch liczb epok (20000 i 50000), czyli dla sześciu kombinacji. Każdą uruchomiliśmy 5 razy
+od różnych wag startowych i zapisaliśmy najmniejszy uzyskany błąd:
+
 | krok uczący | epoki | najlepszy błąd |
 |---|---|---|
 | 0.1 | 20000 | 0.420717 |
@@ -89,15 +94,6 @@ To **faktyczna granica**, a nie niedouczenie.
 Warstwa ukryta ma 2 neurony, więc każdy wzorzec staje się **punktem na płaszczyźnie**.
 Neuron wyjściowy `i` musi dać wartość bliską 1 dla „swojego" punktu i bliską 0 dla pozostałych
 trzech, czyli jego granica decyzyjna musi **oddzielić jeden punkt od trzech**.
-
-Położenia wzorców w warstwie ukrytej (sieć z biasem):
-
-| wzorzec | h₁ | h₂ |
-|---|---|---|
-| 1 | −2.075 | −0.535 |
-| 2 | 0.800 | 1.251 |
-| 3 | 4.707 | −1.591 |
-| 4 | −0.713 | −5.492 |
 
 Sprawdzenie, ile punktów da się odciąć od pozostałych:
 
@@ -122,12 +118,6 @@ z czterech wzorców są odtwarzane poprawnie. W pozostałych dwóch sieć zapala
 wyjście, ale nie potrafi wygasić fałszywego — zostaje ono na poziomie 0.57–0.58, choć powinno
 wynosić 0.
 
-Warto odnotować jedno zastrzeżenie: gdyby za kryterium przyjąć samo wskazanie neuronu
-o najwyższym wyjściu („zwycięzca bierze wszystko"), sieć bez biasu przeszłaby ten test —
-maksimum wypada we właściwym miejscu we wszystkich czterech przypadkach. Ale trening minimalizuje
-`E = ½Σ(zᵢ − yᵢ)²`, a tej funkcji bez biasu zminimalizować się nie da. W sensie postawionego
-zadania trening jest nieskuteczny.
-
 ### Jaka jest rola wejść obciążających?
 
 Bias daje granicy decyzyjnej **swobodę położenia**. Bez niego suma ważona to `sᵢ = u·h`,
@@ -142,11 +132,6 @@ W tym konkretnym zadaniu konsekwencja jest policzalna. Cztery punkty na płaszcz
 czworokąt wypukły, więc **każdy** z nich da się odciąć jakąś prostą — ale prostych przechodzących
 przez początek układu wystarczy tylko dla **dwóch** z nich (dla pozostałych prosta musiałaby
 przejść „pomiędzy", a przez zero tego nie zrobi). Stąd 2 poprawne wzorce zamiast 4.
-
-Drugi, bardziej obrazowy sposób: bez biasu zerowe wejście daje zerową sumę ważoną, a więc
-`f(0) = 0.5` na każdym wyjściu — sieć nie ma żadnego sposobu, by mieć jakiekolwiek „domyślne
-nastawienie". Bias jest właśnie tym nastawieniem: mówi neuronowi, jak bardzo ma być skłonny
-się wzbudzić, zanim jeszcze zobaczy jakiekolwiek wejście.
 
 ## 5. Uruchomienie
 
